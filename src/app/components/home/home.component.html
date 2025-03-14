@@ -1,0 +1,66 @@
+<div class="home-hero">
+  <div class="hero-content">
+    <h1>Track films and TV you've watched.</h1>
+    <h2>Save those you want to see.</h2>
+    <p>Tell your friends what's good.</p>
+    
+    <div class="hero-cta">
+      <a routerLink="/auth/register" class="btn btn-primary btn-lg" *ngIf="!(currentUser$ | async)">Get Started</a>
+      <a routerLink="/browse/films" class="btn btn-secondary btn-lg" *ngIf="currentUser$ | async">Browse Films</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <section class="trending-section">
+    <div class="section-header">
+      <h2>Popular Now</h2>
+      <a routerLink="/browse/trending" class="view-all">View All</a>
+    </div>
+    <app-movie-card 
+      [mediaItems]="trendingMedia" 
+      [isLoading]="isLoading"
+      displayType="slider"
+      [cardsToSlide]="4"
+      (addToWatchlist)="onAddToWatchlist($event)"
+      (likeMedia)="onLikeMedia($event)"
+      (mediaClick)="onMediaClick($event)">
+    </app-movie-card>
+  </section>
+
+  <section class="trending-section">
+    <div class="section-header">
+      <h2>Recommended Movies</h2>
+      <a routerLink="/browse/recommended" class="view-all">View All</a>
+    </div>
+    <app-movie-card 
+      [mediaItems]="reccomendedMedia" 
+      [isLoading]="isLoading"
+      displayType="slider"
+      [cardsToSlide]="4"
+      (addToWatchlist)="onAddToWatchlist($event)"
+      (likeMedia)="onLikeMedia($event)"
+      (mediaClick)="onMediaClick($event)">
+    </app-movie-card>
+  </section>
+  
+  <section class="recent-reviews-section">
+    <div class="section-header">
+      <h2>Recent Reviews</h2>
+      <a routerLink="/browse/reviews" class="view-all">View All</a>
+    </div>
+    
+    <!-- Recent reviews will be loaded here -->
+    <!-- <app-just-reviewed></app-just-reviewed> -->
+  </section>
+  
+  <section class="popular-lists-section">
+    <div class="section-header">
+      <h2>Popular Lists</h2>
+      <a routerLink="/browse/lists" class="view-all">View All</a>
+    </div>
+    
+    <!-- Popular lists will be loaded here -->
+    <!-- <app-popular-lists></app-popular-lists> -->
+  </section>
+</div>

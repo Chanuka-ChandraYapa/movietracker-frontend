@@ -1,0 +1,12 @@
+<mat-card>
+    <h2>Movie List</h2>
+    <div *ngIf="movies.length > 0">
+      <div *ngFor="let movie of movies" class="movie-card">
+        <img [src]="movie.posterUrl" alt="{{ movie.title }}" class="movie-poster">
+        <h3>{{ movie.title }}</h3>
+        <p>{{ movie.overview }}</p>
+        <button mat-button color="primary" [routerLink]="['/movies', movie.id]">View Details</button>
+      </div>
+    </div>
+    <p *ngIf="movies.length === 0">Loading movies...</p>
+  </mat-card>

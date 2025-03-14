@@ -1,0 +1,301 @@
+.auth-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
+  }
+  
+  .auth-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .auth-card {
+    width: 100%;
+    max-width: 440px;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-xl);
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+    opacity: 0.8;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--color-accent);
+      background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-accent-light) 100%);
+    }
+  }
+  
+  .auth-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-accent);
+      letter-spacing: 1px;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    p {
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+  
+  .auth-form {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .input-with-icon {
+    position: relative;
+    
+    i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-tertiary);
+      font-size: 1rem;
+    }
+    
+    input {
+      padding-left: 2.5rem;
+    }
+    
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: var(--color-text-secondary);
+      }
+    }
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+    
+    .remember-me {
+      display: flex;
+      align-items: center;
+      
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: var(--spacing-xs);
+        accent-color: var(--color-accent);
+      }
+      
+      label {
+        margin-bottom: 0;
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+      }
+    }
+    
+    .forgot-password {
+      color: var(--color-accent);
+      font-size: 0.9rem;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .btn-primary {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-accent);
+    color: var(--color-background-dark);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &:hover:not(:disabled) {
+      background-color: var(--color-accent-light);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+  
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    margin: var(--spacing-md) 0;
+    
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background-color: var(--color-background-light);
+    }
+    
+    span {
+      padding: 0 var(--spacing-sm);
+      color: var(--color-text-tertiary);
+      font-size: 0.9rem;
+    }
+  }
+  
+  .social-login {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  .btn-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border: 1px solid var(--color-background-light);
+    background-color: transparent;
+    color: var(--color-text-primary);
+    border-radius: var(--border-radius-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    i {
+      margin-right: var(--spacing-sm);
+    }
+    
+    &:hover {
+      background-color: var(--color-background-hover);
+    }
+    
+    &.btn-google {
+      i {
+        color: #EA4335;
+      }
+    }
+    
+    &.btn-facebook {
+      i {
+        color: #1877F2;
+      }
+    }
+  }
+  
+  .auth-footer {
+    text-align: center;
+    
+    p {
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+      
+      a {
+        color: var(--color-accent);
+        text-decoration: none;
+        font-weight: 500;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  
+  .marquee-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    height: 40px;
+    background-color: rgba(var(--color-background-dark), 0.7);
+    backdrop-filter: blur(4px);
+  }
+  
+  .marquee-content {
+    display: flex;
+    animation: marquee 30s linear infinite;
+    white-space: nowrap;
+  }
+  
+  .movie-item {
+    padding: 0 var(--spacing-md);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    
+    &::after {
+      content: '•';
+      margin-left: var(--spacing-md);
+      color: var(--color-accent);
+    }
+    
+    &:last-child::after {
+      content: '';
+    }
+  }
+  
+  @keyframes marquee {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .auth-card {
+      padding: var(--spacing-lg);
+      margin: 0 var(--spacing-md);
+    }
+    
+    .form-actions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+    }
+  }
+  
+  .icon-email, .icon-lock, .icon-eye, .icon-eye-slash, .icon-google, .icon-facebook {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+  }

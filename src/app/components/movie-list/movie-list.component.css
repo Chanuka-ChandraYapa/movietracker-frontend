@@ -1,0 +1,12 @@
+.movie-card {
+    display: inline-block;
+    width: 200px;
+    margin: 10px;
+    text-align: center;
+  }
+  
+  .movie-poster {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+  }

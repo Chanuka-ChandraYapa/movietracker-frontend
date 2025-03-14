@@ -1,0 +1,66 @@
+<header class="header">
+  <div class="header-container">
+    <div class="logo">
+      <a routerLink="/">
+        <span class="logo-text">Prometheon</span>
+      </a>
+    </div>
+
+    <nav class="main-nav">
+      <ul>
+        <li><a routerLink="/browse/films"
+            routerLinkActive="active">Films</a></li>
+        <li><a routerLink="/browse/tv" routerLinkActive="active">TV</a></li>
+        <li><a routerLink="/browse/lists"
+            routerLinkActive="active">Lists</a></li>
+        <li><a routerLink="/browse/members"
+            routerLinkActive="active">Members</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <div class="search-container" [class.expanded]="isSearchExpanded">
+        <button class="search-toggle" (click)="toggleSearchExpand()">
+          <i class="fa fa-search"></i>
+        </button>
+        <div class="search-input-container" *ngIf="isSearchExpanded">
+          <input
+            type="text"
+            placeholder="Search for films, TV, people..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()">
+        </div>
+      </div>
+
+      <ng-container *ngIf="(currentUser$ | async) as user; else loginBlock">
+        <div class="user-actions">
+          <div class="dropdown">
+            <button class="dropdown-toggle">
+              <img
+                [src]="user.avatarUrl || 'https://www.pngall.com/wp-content/uploads/12/Avatar-Profile-Vector.png'"
+                alt="Profile" class="avatar">
+            </button>
+            <div class="dropdown-menu">
+              <a [routerLink]="['/profile', user.username]">Profile</a>
+              <a routerLink="/watchlist">Watchlist</a>
+              <a routerLink="/lists">My Lists</a>
+              <a routerLink="/activity">Activity</a>
+              <a routerLink="/settings">Settings</a>
+              <button (click)="logout()">Log Out</button>
+            </div>
+          </div>
+          <!-- <a routerLink="/films/add" class="btn-add-review">
+              <i class="fa fa-add">+</i>
+            </a> -->
+        </div>
+      </ng-container>
+
+      <ng-template #loginBlock>
+        <div class="auth-buttons">
+          <a routerLink="/login" class="btn-login">Log In</a>
+          <a routerLink="/register" class="btn-register">Sign Up</a>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</header>

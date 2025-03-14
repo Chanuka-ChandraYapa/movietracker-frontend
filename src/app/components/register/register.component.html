@@ -1,0 +1,156 @@
+<div class="auth-container" [ngStyle]="{'background-image': 'url(' + currentBg + ')'}">
+    <div class="auth-overlay">
+      <div class="auth-card register-card">
+        <div class="auth-header">
+          <h1 class="logo">Promethion</h1>
+          <h2>Create Account</h2>
+          <p>Join thousands of movie & TV show enthusiasts</p>
+        </div>
+  
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-with-icon">
+              <i class="fa fa-user"></i>
+              <input 
+                type="text" 
+                id="username" 
+                formControlName="username" 
+                placeholder="Choose a username">
+            </div>
+            <div *ngIf="registerForm.get('username')?.touched && registerForm.get('username')?.invalid" class="input-validation error">
+              <span *ngIf="registerForm.get('username')?.errors?.['required']">Username is required</span>
+              <span *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 4 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="displayname">Display Name</label>
+            <div class="input-with-icon">
+              <i class="fa fa-snowflake-o"></i>
+              <input 
+                type="text" 
+                id="displayname" 
+                formControlName="displayname" 
+                placeholder="Choose a display name">
+            </div>
+            <div *ngIf="registerForm.get('displayname')?.touched && registerForm.get('displayname')?.invalid" class="input-validation error">
+              <span *ngIf="registerForm.get('displayname')?.errors?.['required']">Username is required</span>
+              <span *ngIf="registerForm.get('displayname')?.errors?.['minlength']">Username must be at least 4 characters</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <div class="input-with-icon">
+              <i class="fa fa-envelope"></i>
+              <input 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                placeholder="Enter your email">
+            </div>
+            <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="input-validation error">
+              <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-with-icon">
+              <i class="fa fa-lock"></i>
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                id="password" 
+                formControlName="password" 
+                placeholder="Create a password">
+              <i 
+                [class]="showPassword ? 'icon-eye-slash' : 'icon-eye'" 
+                class="toggle-password"
+                (click)="togglePasswordVisibility()">
+              </i>
+            </div>
+            <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" class="input-validation error">
+              <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters</span>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-with-icon">
+              <i class="fa fa-lock"></i>
+              <input 
+                [type]="showConfirmPassword ? 'text' : 'password'" 
+                id="confirmPassword" 
+                formControlName="confirmPassword" 
+                placeholder="Confirm your password">
+              <i 
+                [class]="showConfirmPassword ? 'icon-eye-slash' : 'icon-eye'" 
+                class="toggle-password"
+                (click)="toggleConfirmPasswordVisibility()">
+              </i>
+            </div>
+            <div *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid" class="input-validation error">
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</span>
+              <span *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwords do not match</span>
+            </div>
+          </div>
+          
+          <!-- <div class="form-group">
+            <label>Movie & TV Show Interests</label>
+            <div class="genre-selector">
+              <div 
+                *ngFor="let genre of genres" 
+                class="genre-tag" 
+                [class.selected]="isGenreSelected(genre.id)"
+                (click)="toggleGenre(genre.id)">
+                {{ genre.name }}
+              </div>
+            </div>
+            <p class="genre-hint">Select genres you're interested in (optional)</p>
+          </div> -->
+          
+          <div class="form-group terms-checkbox">
+            <input type="checkbox" id="termsAgreed" formControlName="termsAgreed">
+            <label for="termsAgreed">
+              I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
+            <div *ngIf="registerForm.get('termsAgreed')?.touched && registerForm.get('termsAgreed')?.invalid" class="input-validation error">
+              <span>You must agree to the terms to continue</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+            Create Account
+          </button>
+        </form>
+        
+        <div class="auth-divider">
+          <span>OR</span>
+        </div>
+        
+        <div class="social-login">
+          <button class="btn-social btn-google">
+            <i class="icon-google"></i> Sign up with Google
+          </button>
+          <button class="btn-social btn-facebook">
+            <i class="icon-facebook"></i> Sign up with Facebook
+          </button>
+        </div>
+        
+        <div class="auth-footer">
+          <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- <div class="movie-poster-reel">
+      <div class="poster-item"></div>
+      <div class="poster-item"></div>
+      <div class="poster-item"></div>
+      <div class="poster-item"></div>
+      <div class="poster-item"></div>
+    </div> -->
+  </div>

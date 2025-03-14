@@ -1,0 +1,35 @@
+<div class="search-results-container">
+    <div class="search-header">
+      <h2 *ngIf="searchQuery">Search results for "{{ searchQuery }}"</h2>
+      <p *ngIf="searchResults.length > 0" class="results-count">
+        Found {{ searchResults.length }} results
+      </p>
+    </div>
+  
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Searching...</p>
+    </div>
+  
+    <div *ngIf="hasError" class="error-container">
+      <p class="error-message">{{ errorMessage }}</p>
+      <button class="retry-button" (click)="ngOnInit()">Try Again</button>
+    </div>
+  
+    <div *ngIf="!isLoading && !hasError && searchResults.length === 0" class="no-results">
+      <p>No results found for "{{ searchQuery }}"</p>
+      <p>Try adjusting your search terms or browse our categories instead.</p>
+    </div>
+  
+    <div *ngIf="!isLoading && !hasError && searchResults.length > 0">
+      <app-movie-card 
+      [mediaItems]="searchResults" 
+      [isLoading]="isLoading"
+      displayType="slider" 
+      [cardsToSlide]="4"
+      (addToWatchlist)="onAddToWatchlist($event)"
+      (likeMedia)="onLikeMedia($event)"
+      (mediaClick)="onMediaClick($event)">
+    </app-movie-card>
+    </div>
+  </div>
