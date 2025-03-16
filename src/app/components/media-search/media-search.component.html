@@ -1,0 +1,173 @@
+<div class="search-container">
+    <div class="search-header" *ngIf="searchMode === 'normal'">
+        <div class="search-bar">
+            <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (input)="onSearchChange()"
+                placeholder="Search for movies, TV shows, or people..."
+                class="search-input"
+                [class.active]="searchQuery.length > 0">
+            <button class="advanced-search-badge" (click)="toggleSearchMode()">
+                Try
+                Advanced Search</button>
+            <button class="search-button" (click)="performSearch()">
+                <i class="fa fa-search"></i>
+            </button>
+            <button *ngIf="searchQuery.length > 0" class="clear-button"
+                (click)="clearSearch()">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+
+        <div class="search-filters">
+            <button
+                class="filter-toggle"
+                [class.active]="showFilters"
+                (click)="toggleFilters()">
+                <i class="fa fa-filter"></i> Filters
+            </button>
+            <div class="search-type">
+                <button
+                    *ngFor="let type of searchTypes"
+                    class="type-button"
+                    [class.active]="selectedType === type.value"
+                    (click)="setSearchType(type.value)">
+                    {{ type.label }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <app-advanced-search *ngIf="searchMode ==='advanced'"></app-advanced-search>
+
+    <div class="filter-panel" *ngIf="showFilters">
+        <div class="filter-section">
+            <h3>Release Year</h3>
+            <div class="year-range">
+                <input
+                    type="number"
+                    [(ngModel)]="filters.yearFrom"
+                    placeholder="From"
+                    class="year-input">
+                <span class="range-separator">to</span>
+                <input
+                    type="number"
+                    [(ngModel)]="filters.yearTo"
+                    placeholder="To"
+                    class="year-input">
+            </div>
+        </div>
+
+        <div class="filter-section" *ngIf="selectedType !== 'person'">
+            <h3>Genre</h3>
+            <div class="genre-list">
+                <div *ngFor="let genre of genres" class="genre-item">
+                    <input
+                        type="checkbox"
+                        [id]="'genre-' + genre.id"
+                        [(ngModel)]="genre.selected"
+                        class="genre-checkbox">
+                    <label [for]="'genre-' + genre.id">{{ genre.name }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section" *ngIf="selectedType !== 'person'">
+            <h3>Rating</h3>
+            <div class="rating-slider">
+                <ng-container *ngIf="selectedType === 'movie'">
+                    <input
+                        type="range"
+                        min="0"
+                        max="5"
+                        step="0.5"
+                        [(ngModel)]="filters.minRating"
+                        class="rating-input">
+                    <span class="rating-value">{{ filters.minRating }}+
+                        stars</span>
+                </ng-container>
+                <div *ngIf="selectedType === 'tv'" class="rating-options">
+                    <button
+                        *ngFor="let rating of ['Any', 'G', 'PG', 'PG-13', 'R', 'NC-17']"
+                        class="rating-button"
+                        [class.active]="filters.contentRating === rating"
+                        (click)="filters.contentRating = rating">
+                        {{ rating }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section" *ngIf="selectedType === 'person'">
+            <h3>Known For</h3>
+            <div class="known-for-options">
+                <button
+                    *ngFor="let role of ['Any', 'Acting', 'Directing', 'Writing', 'Production']"
+                    class="role-button"
+                    [class.active]="filters.knownFor === role"
+                    (click)="filters.knownFor = role">
+                    {{ role }}
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3>Sort By</h3>
+            <select [(ngModel)]="filters.sortBy" class="sort-select">
+                <option value="relevance">Relevance</option>
+                <option value="popularity">Popularity</option>
+                <option value="rating">Rating</option>
+                <option *ngIf="selectedType !== 'person'"
+                    value="release_date">Release Date</option>
+                <option *ngIf="selectedType === 'person'"
+                    value="name">Name</option>
+            </select>
+            <div class="sort-direction">
+                <button
+                    class="direction-button"
+                    [class.active]="filters.sortDirection === 'asc'"
+                    (click)="filters.sortDirection = 'asc'">
+                    <i class="fa fa-arrow-up"></i>
+                </button>
+                <button
+                    class="direction-button"
+                    [class.active]="filters.sortDirection === 'desc'"
+                    (click)="filters.sortDirection = 'desc'">
+                    <i class="fa fa-arrow-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-actions">
+            <button class="filter-apply" (click)="applyFilters()">Apply
+                Filters</button>
+            <button class="filter-reset" (click)="resetFilters()">Reset</button>
+        </div>
+    </div>
+
+    <div class="recent-searches"
+        *ngIf="searchQuery.length === 0 && recentSearches.length > 0">
+        <h3>Recent Searches</h3>
+        <ul class="recent-list">
+            <li *ngFor="let search of recentSearches" class="recent-item">
+                <button class="recent-button" (click)="useRecentSearch(search)">
+                    <span class="recent-query">{{ search.query }}</span>
+                    <span class="recent-type">{{ getSearchTypeLabel(search.type)
+                        }}</span>
+                </button>
+                <button class="recent-remove"
+                    (click)="removeRecentSearch(search)">
+                    <i class="fa fa-times"></i>
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="search-insights" *ngIf="isLoading">
+        <div class="loader">
+            <div class="spinner"></div>
+            <span>Searching...</span>
+        </div>
+    </div>
+</div>

@@ -1,1 +1,474 @@
-<p>user-profile works!</p>
+<div class="profile-container"
+    *ngIf="profileUser$ | async as user; else loading">
+    <div class="profile-header">
+        <div class="profile-cover-gradient"></div>
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <img
+                    [src]="user.avatarUrl || 'assets/images/default-avatar.png'"
+                    alt="Profile avatar">
+            </div>
+            <div class="profile-details">
+                <h1 class="profile-name">{{ user.displayName }}</h1>
+                <h2 class="profile-username">{{ user.username }}</h2>
+                <p class="profile-bio" *ngIf="user.bio">{{ user.bio }}</p>
+                <div class="profile-meta">
+                    <span class="meta-item">Member since {{ user.createdAt |
+                        date:'mediumDate' }}</span>
+                </div>
+            </div>
+            <div class="profile-actions"
+                *ngIf="(currentUser$ | async)?.id !== user.id">
+                <button class="btn-follow"
+                    [class.following]="isFollowing"
+                    (click)="toggleFollow(user.id)">
+                    {{ isFollowing ? 'Following' : 'Follow' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-nav">
+            <ul class="nav-tabs">
+                <li [class.active]="activeTab === 'overview'"
+                    (click)="setActiveTab('overview')">Overview</li>
+                <li [class.active]="activeTab === 'watched'"
+                    (click)="setActiveTab('watched')">Watched</li>
+                <li [class.active]="activeTab === 'reviews'"
+                    (click)="setActiveTab('reviews')">Reviews</li>
+                <li [class.active]="activeTab === 'lists'"
+                    (click)="setActiveTab('lists')">Lists</li>
+                <li [class.active]="activeTab === 'stats'"
+                    (click)="setActiveTab('stats')">Stats</li>
+                <li [class.active]="activeTab === 'network'"
+                    (click)="setActiveTab('network')">Network</li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'overview'">
+                <div class="overview-grid">
+                    <div class="section recent-activity">
+                        <div class="section-header">
+                            <h3>Recent Activity</h3>
+                            <a class="section-link"
+                                [routerLink]="['/users', user.username, 'activity']">View
+                                All</a>
+                        </div>
+                        <div class="activity-list"
+                            *ngIf="recentlyWatched?.length; else noActivity">
+                            <div class="activity-item"
+                                *ngFor="let item of recentlyWatched.splice(0, 5)">
+                                <div class="activity-content">
+                                    <span
+                                        class="activity-action">{{item.status}}</span>
+                                    <a [routerLink]="['/movies', item.media.id]"
+                                        class="media-title">{{ item.media.title
+                                        }}</a>
+                                </div>
+                                <div class="activity-date">{{
+                                    item.watchedDate |
+                                    date:'shortDate' }}</div>
+                            </div>
+                        </div>
+                        <ng-template #noActivity>
+                            <p class="empty-state">No recent activity</p>
+                        </ng-template>
+                    </div>
+
+                    <div class="section highest-rated">
+                        <div class="section-header">
+                            <h3>Highest Rated</h3>
+                        </div>
+                        <div *ngIf="highestRated?.length; else noHighestRated">
+                            <app-movie-card
+                                [mediaItems]="highestRated"
+                                [isLoading]="isLoading"
+                                displayType="grid"
+                                (mediaClick)="onMediaClick($event)">
+                            </app-movie-card>
+                        </div>
+                        <ng-template #noHighestRated>
+                            <p class="empty-state">No ratings yet</p>
+                        </ng-template>
+                    </div>
+
+                    <div class="section latest-reviews">
+                        <div class="section-header">
+                            <h3>Latest Reviews</h3>
+                            <a class="section-link"
+                                [routerLink]="['/users', user.username, 'reviews']">View
+                                All</a>
+                        </div>
+                        <div class="reviews-list"
+                            *ngIf="userReviews?.length; else noReviews">
+                            <div class="review-card"
+                                *ngFor="let review of userReviews.slice(0, 2)">
+                                <div class="review-header">
+                                    <img [src]="review.media.posterUrl"
+                                        alt="{{ review.media.title }} poster"
+                                        class="review-poster">
+                                    <div class="review-media-info">
+                                        <h4 class="review-media-title">{{
+                                            review.media.title }}</h4>
+                                        <div class="review-rating">
+                                            <span class="rating-value">{{
+                                                review.likes }}/5</span>
+                                            <div class="rating-stars">
+                                                <i class="star-icon"
+                                                    *ngFor="let star of getStarsArray(review.likes)"
+                                                    [class.full]="star === 1"
+                                                    [class.half]="star === 0.5"
+                                                    [class.empty]="star === 0">★</i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="review-text">{{ review.content |
+                                    slice:0:150 }}{{ review.content.length > 150
+                                    ? '...' : '' }}</p>
+                                <a
+                                    [routerLink]="['/media', review.media.id, 'reviews', review.id]"
+                                    class="read-more">Read more</a>
+                            </div>
+                        </div>
+                        <ng-template #noReviews>
+                            <p class="empty-state">No reviews yet</p>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watched Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'watched'">
+                <div class="watched-filters">
+                    <div class="filter-group">
+                        <label>Filter by:</label>
+                        <select [(ngModel)]="watchedFilter"
+                            (change)="filterWatchedItems()">
+                            <option value="all">All</option>
+                            <option value="movies">Movies</option>
+                            <option value="tv">TV Shows</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select [(ngModel)]="watchedSort"
+                            (change)="sortWatchedItems()">
+                            <option value="recent">Recently Watched</option>
+                            <option value="rating-high">Highest Rated</option>
+                            <option value="rating-low">Lowest Rated</option>
+                            <option value="title">Title (A-Z)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div *ngIf="watchedItems?.length; else noWatchedItems">
+                    <app-movie-card
+                        [mediaItems]="filteredWatchedItems"
+                        [isLoading]="isLoading"
+                        displayType="grid"
+                        (mediaClick)="onMediaClick($event)">
+                    </app-movie-card>
+                </div>
+                <ng-template #noWatchedItems>
+                    <p class="empty-state">No watched items yet</p>
+                </ng-template>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'reviews'">
+                <div class="reviews-filters">
+                    <div class="filter-group">
+                        <label>Sort by:</label>
+                        <select [(ngModel)]="reviewsSort"
+                            (change)="sortReviews()">
+                            <option value="recent">Most Recent</option>
+                            <option value="rating-high">Highest Rated</option>
+                            <option value="rating-low">Lowest Rated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="reviews-grid"
+                    *ngIf="userReviews?.length; else noReviewsYet">
+                    <div class="review-card" *ngFor="let review of userReviews">
+                        <div class="review-header">
+                            <img [src]="review.media.posterUrl"
+                                alt="{{ review.media.title }} poster"
+                                class="review-poster">
+                            <div class="review-media-info">
+                                <h4 class="review-media-title">{{
+                                    review.media.title }}</h4>
+                                <div class="review-rating">
+                                    <span class="rating-value">{{ review.likes
+                                        }}/5</span>
+                                    <div class="rating-stars">
+                                        <i class="star-icon"
+                                            *ngFor="let star of getStarsArray(review.likes)"
+                                            [class.full]="star === 1"
+                                            [class.half]="star === 0.5"
+                                            [class.empty]="star === 0">★</i>
+                                    </div>
+                                </div>
+                                <span class="review-date">{{ review.createdAt |
+                                    date:'mediumDate' }}</span>
+                            </div>
+                        </div>
+                        <p class="review-text">{{ review.content }}</p>
+                        <div class="review-actions">
+                            <button class="btn-like"
+                                [class.liked]="review.isLiked"
+                                (click)="toggleLikeReview(review)">
+                                <span class="like-icon">♥</span>
+                                <span class="like-count">{{ review.likesCount ||
+                                    0 }}</span>
+                            </button>
+                            <button class="btn-comment"
+                                (click)="navigateToReview(review)">
+                                <span class="comment-icon">💬</span>
+                                <span class="comment-count">{{
+                                    review.likes || 0 }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #noReviewsYet>
+                    <p class="empty-state">No reviews yet</p>
+                </ng-template>
+            </div>
+
+            <!-- Lists Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'lists'">
+                <div class="lists-header"
+                    *ngIf="(currentUser$ | async)?.id === user.id">
+                    <button class="btn-create-list"
+                        (click)="createNewList()">Create New List</button>
+                </div>
+
+                <div class="lists-grid"
+                    *ngIf="customLists?.length; else noLists">
+                    <div class="list-card" *ngFor="let list of customLists">
+                        <div class="list-preview"
+                            [routerLink]="['/lists', list.id]">
+                            <div class="list-posters">
+                                <img *ngFor="let item of list.items.slice(0, 2)"
+                                    [src]="item.posterUrl"
+                                    alt="List item poster">
+                            </div>
+                            <div class="list-overlay">
+                                <span class="list-item-count">{{
+                                    list.items.length }} items</span>
+                            </div>
+                        </div>
+                        <div class="list-info">
+                            <h4 class="list-title">{{ list.name }}</h4>
+                            <p class="list-description">{{ list.description |
+                                slice:0:100 }}{{ list.description.length > 100 ?
+                                '...' : '' }}</p>
+                            <div class="list-meta">
+                                <span class="list-visibility">{{ list.isPublic ?
+                                    'Public' : 'Private' }}</span>
+                                <span class="list-date">{{ list.createdAt |
+                                    date:'shortDate' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #noLists>
+                    <p class="empty-state">No lists created yet</p>
+                </ng-template>
+            </div>
+
+            <!-- Stats Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'stats'">
+                <div class="stats-grid" *ngIf="userStats; else loadingStats">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.movieCount
+                            }}</div>
+                        <div class="stat-label">Movies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.tvSeriesCount
+                            }}</div>
+                        <div class="stat-label">TV Shows</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.currentlyWatching
+                            }}</div>
+                        <div class="stat-label">Currently Watching</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.wantToWatch
+                            }}</div>
+                        <div class="stat-label">Want to Watch</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.totalRuntimeMinutes
+                            }}</div>
+                        <div class="stat-label">Watched Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ userStats.averageRating |
+                            number:'1.1-1' }}</div>
+                        <div class="stat-label">Avg. Rating</div>
+                    </div>
+                    <div class="stat-card wide">
+                        <div class="stat-value">{{ userStats.mostWatchedGenre
+                            }}</div>
+                        <div class="stat-label">Most Watched Genre</div>
+                    </div>
+                </div>
+                <ng-template #loadingStats>
+                    <p class="loading-state">Loading stats...</p>
+                </ng-template>
+
+                <div class="activity-chart">
+                    <h3>Watching Activity (Coming Soon)</h3>
+                    <div class="chart-placeholder">
+                        <p>Activity visualization will be available soon</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Tab -->
+            <div class="tab-pane" *ngIf="activeTab === 'network'">
+                <div class="network-tabs">
+                    <button [class.active]="networkTab === 'following'"
+                        (click)="setNetworkTab('following')">
+                        Following ({{ user.following.length || 0 }})
+                    </button>
+                    <button [class.active]="networkTab === 'followers'"
+                        (click)="setNetworkTab('followers')">
+                        Followers ({{ user.followers.length || 0 }})
+                    </button>
+                    <button [class.active]="networkTab === 'activity'"
+                        (click)="setNetworkTab('activity')">
+                        Network Activity
+                    </button>
+                </div>
+
+                <div class="network-content">
+                    <!-- Following Tab -->
+                    <div *ngIf="networkTab === 'following'">
+                        <div class="user-grid"
+                            *ngIf="following?.length; else noFollowing">
+                            <div class="user-card"
+                                *ngFor="let followedUser of following">
+                                <div class="user-avatar"
+                                    [routerLink]="['/users', followedUser.username]">
+                                    <img
+                                        [src]="followedUser.avatarUrl || 'assets/images/default-avatar.png'"
+                                        alt="User avatar">
+                                </div>
+                                <div class="user-info">
+                                    <h4 class="user-name">{{
+                                        followedUser.displayName }}</h4>
+                                    <p class="user-username">{{
+                                        followedUser.username }}</p>
+                                </div>
+                                <button class="btn-unfollow"
+                                    (click)="unfollowUser(followedUser.id)">Unfollow</button>
+                            </div>
+                        </div>
+                        <ng-template #noFollowing>
+                            <p class="empty-state">Not following anyone yet</p>
+                        </ng-template>
+                    </div>
+
+                    <!-- Followers Tab -->
+                    <div *ngIf="networkTab === 'followers'">
+                        <div class="user-grid"
+                            *ngIf="followers?.length; else noFollowers">
+                            <div class="user-card"
+                                *ngFor="let follower of followers">
+                                <div class="user-avatar"
+                                    [routerLink]="['/users', follower.username]">
+                                    <img
+                                        [src]="follower.avatarUrl || 'assets/images/default-avatar.png'"
+                                        alt="User avatar">
+                                </div>
+                                <div class="user-info">
+                                    <h4 class="user-name">{{
+                                        follower.displayName }}</h4>
+                                    <p class="user-username">{{
+                                        follower.username }}</p>
+                                </div>
+                                <button class="btn-follow"
+                                    *ngIf="(currentUser$ | async) as currentUser"
+                                    [class.following]="isUserFollowing(follower.id)"
+                                    (click)="toggleFollowUser(follower.id)">
+                                    {{ isUserFollowing(follower.id) ?
+                                    'Following' : 'Follow' }}
+                                </button>
+                            </div>
+                        </div>
+                        <ng-template #noFollowers>
+                            <p class="empty-state">No followers yet</p>
+                        </ng-template>
+                    </div>
+
+                    <!-- Network Activity Tab -->
+                    <div *ngIf="networkTab === 'activity'">
+                        <div class="activity-list"
+                            *ngIf="followingReviews?.length; else noNetworkActivity">
+                            <div class="activity-card"
+                                *ngFor="let review of followingReviews">
+                                <div class="activity-user">
+                                    <img
+                                        [src]="review.user.avatarUrl || 'assets/images/default-avatar.png'"
+                                        alt="User avatar"
+                                        class="activity-avatar">
+                                    <div class="activity-user-info">
+                                        <span class="activity-username">{{
+                                            review.user.displayName }}</span>
+                                        <span
+                                            class="activity-action">reviewed</span>
+                                        <a
+                                            [routerLink]="['/media', review.media.id]"
+                                            class="activity-media">{{
+                                            review.media.title }}</a>
+                                    </div>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-rating">
+                                        <span class="rating-value">{{
+                                            review.likes }}/5</span>
+                                        <div class="rating-stars">
+                                            <i class="star-icon"
+                                                *ngFor="let star of getStarsArray(review.likes)"
+                                                [class.full]="star === 1"
+                                                [class.half]="star === 0.5"
+                                                [class.empty]="star === 0">★</i>
+                                        </div>
+                                    </div>
+                                    <p class="activity-text">{{ review.content |
+                                        slice:0:100 }}{{ review.content.length >
+                                        100 ? '...' : '' }}</p>
+                                    <a
+                                        [routerLink]="['/media', review.media.id, 'reviews', review.id]"
+                                        class="read-more">Read more</a>
+                                </div>
+                                <div class="activity-date">{{ review.createdAt |
+                                    date:'mediumDate' }}</div>
+                            </div>
+                        </div>
+                        <ng-template #noNetworkActivity>
+                            <p class="empty-state">No recent activity from your
+                                network</p>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loading>
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading profile...</p>
+    </div>
+</ng-template>

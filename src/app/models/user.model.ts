@@ -42,9 +42,13 @@ export interface User {
   
   // src/app/core/models/user-stats.model.ts
   export interface UserStats {
-    moviesWatched: number;
-    tvSeriesWatched: number;
+    movieCount: number;
+    tvSeriesCount: number;
+    totalWatched: number;
+    currentlyWatching: number;
+    wantToWatch: number;
     totalReviews: number;
     averageRating: number;
     mostWatchedGenre: string;
+    totalRuntimeMinutes: number;
   }

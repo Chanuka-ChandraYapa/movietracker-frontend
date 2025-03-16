@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Review } from '../models/media.model';
 import { environment } from '../../environments/environment';
 
@@ -8,6 +8,9 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ReviewService {
+  unlikeReview(id: number, id1: number) {
+    return of(null);
+  }
   private apiUrl = `${environment.apiUrl}/api/reviews`;
 
   constructor(private http: HttpClient) { }

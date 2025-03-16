@@ -1,10 +1,10 @@
-@import '../../../styles.css';
+@import "../../../styles.css";
 
 .home-hero {
   position: relative;
-  background-image: url('https://wallpapers.com/images/high/fantastic-beasts-and-where-to-find-them-colin-farrell-1gpzwxy1gftmxy0i.webp');
-  background-size: cover;
-  background-position: center;
+  /* background-image: url('https://wallpapers.com/images/high/fantastic-beasts-and-where-to-find-them-colin-farrell-1gpzwxy1gftmxy0i.webp'); */
+  /* background-size: cover; */
+  /* background-position: center; */
   height: 80vh;
   max-height: 600px;
   display: flex;
@@ -12,9 +12,11 @@
   justify-content: center;
   text-align: center;
   margin-bottom: var(--spacing-xl);
-  
+  overflow: hidden;
+  /* transition: background-image 1s ease-in-out; */
+
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -23,55 +25,71 @@
     background: rgba(20, 24, 28, 0.7);
     z-index: 1;
   }
-  
+  .poster-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    z-index: 0;
+  }
+
+  .poster {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
+  }
+
   .hero-content {
     position: relative;
     z-index: 2;
     max-width: 800px;
     padding: 0 var(--spacing-md);
-    
+
     h1 {
       font-size: 2.5rem;
       margin-bottom: var(--spacing-sm);
       color: white;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      
+
       @media (min-width: 768px) {
         font-size: 3rem;
       }
-      
+
       @media (min-width: 992px) {
         font-size: 3.5rem;
       }
     }
-    
+
     h2 {
       font-size: 1.5rem;
       margin-bottom: var(--spacing-md);
       color: white;
       font-weight: 400;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      
+
       @media (min-width: 768px) {
         font-size: 2rem;
       }
     }
-    
+
     p {
       font-size: 1.25rem;
       margin-bottom: var(--spacing-lg);
       color: var(--color-text-secondary);
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
-    
+
     .hero-cta {
       margin-top: var(--spacing-lg);
-      
+
       .btn {
         font-size: 1.125rem;
         padding: 0.75rem 2rem;
         border-radius: var(--border-radius-md);
-        
+
         @media (min-width: 768px) {
           font-size: 1.25rem;
           padding: 1rem 2.5rem;
@@ -86,30 +104,30 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--spacing-lg);
-  
+
   h2 {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-text-primary);
-    
+
     @media (min-width: 768px) {
       font-size: 1.75rem;
     }
   }
-  
+
   .view-all {
     font-size: 0.9rem;
     color: var(--color-accent);
     text-decoration: none;
-    
+
     &:hover {
       text-decoration: underline;
     }
   }
 }
 
-.trending-section, 
-.recent-reviews-section, 
+.trending-section,
+.recent-reviews-section,
 .popular-lists-section {
   margin-bottom: var(--spacing-xl) * 2;
 }
@@ -118,11 +136,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: var(--spacing-md);
-  
+
   @media (min-width: 768px) {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
-  
+
   @media (min-width: 992px) {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
@@ -130,12 +148,12 @@
 
 .media-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-  
+
   .poster {
     position: relative;
     height: 0;
@@ -143,7 +161,7 @@
     border-radius: var(--border-radius-sm);
     overflow: hidden;
     margin-bottom: var(--spacing-xs);
-    
+
     img {
       position: absolute;
       top: 0;
@@ -153,11 +171,11 @@
       object-fit: cover;
       transition: transform 0.3s ease;
     }
-    
+
     &:hover img {
       transform: scale(1.05);
     }
-    
+
     .media-badge {
       position: absolute;
       top: 8px;
@@ -169,7 +187,7 @@
       padding: 2px 6px;
       border-radius: 2px;
     }
-    
+
     .poster-actions {
       position: absolute;
       bottom: 8px;
@@ -178,7 +196,7 @@
       gap: 8px;
       opacity: 0;
       transition: opacity 0.2s ease;
-      
+
       .action-btn {
         width: 30px;
         height: 30px;
@@ -191,22 +209,21 @@
         justify-content: center;
         cursor: pointer;
         transition: background-color 0.2s ease;
-        
+
         &:hover {
           background-color: var(--color-accent);
         }
-        
+
         .icon {
           font-size: 1rem;
         }
       }
     }
-    
+
     &:hover .poster-actions {
       opacity: 1;
     }
   }
-
 }
 
 .loading-spinner {
@@ -215,7 +232,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-lg) 0;
-  
+
   .spinner {
     width: 40px;
     height: 40px;
@@ -224,7 +241,7 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
-  
+
   p {
     margin-top: var(--spacing-sm);
     font-size: 0.9rem;
@@ -233,50 +250,54 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .media-info {
   padding: var(--spacing-xs) 0;
-  
+
   .media-title {
     font-size: 1rem;
     font-weight: 600;
     color: var(--color-text-primary);
     margin-bottom: var(--spacing-xxs);
-    
+
     a {
       color: inherit;
       text-decoration: none;
-      
+
       &:hover {
         color: var(--color-accent);
       }
     }
   }
-  
+
   .media-meta {
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     font-size: 0.85rem;
     color: var(--color-text-secondary);
-    
+
     .year {
       font-weight: 500;
     }
-    
+
     .rating {
       display: flex;
       align-items: center;
       gap: 4px;
-      
+
       .star {
         color: var(--color-accent);
         font-size: 0.9rem;
       }
-      
+
       .rating-value {
         font-weight: 600;
       }
@@ -284,12 +305,12 @@
   }
 }
 
-.recent-reviews-section, 
+.recent-reviews-section,
 .popular-lists-section {
   .section-header {
     margin-bottom: var(--spacing-lg);
   }
-  
+
   .media-grid {
     margin-top: var(--spacing-md);
   }
@@ -300,7 +321,7 @@
   .media-title {
     color: var(--color-accent);
   }
-  
+
   .media-meta {
     color: var(--color-text-primary);
   }
@@ -311,12 +332,12 @@
   .media-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
-  
+
   .media-info {
     .media-title {
       font-size: 0.9rem;
     }
-    
+
     .media-meta {
       font-size: 0.8rem;
     }
@@ -329,7 +350,7 @@
   border: none;
   color: white;
   transition: background-color 0.2s ease, transform 0.2s ease;
-  
+
   &:hover {
     background-color: darken(var(--color-accent), 10%);
     transform: translateY(-2px);
@@ -341,7 +362,7 @@
   border: 2px solid var(--color-accent);
   color: var(--color-accent);
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  
+
   &:hover {
     background-color: var(--color-accent);
     color: white;

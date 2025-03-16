@@ -11,6 +11,8 @@ import { CustomListsComponent } from './components/custom-lists/custom-lists.com
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
+import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
+import { MediaSearchComponent } from './components/media-search/media-search.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,6 +26,9 @@ const routes: Routes = [
   { path: 'watchlist', component: WatchlistComponent },
   { path: 'lists', component: CustomListsComponent },
   { path: 'search', component: SearchResultsComponent },
+  { path: 'advanced-search', component: AdvancedSearchComponent },
+  { path: 'media-search', component: MediaSearchComponent },
+  { path: 'profile/:id', component: UserProfileComponent },
   { path: '**', redirectTo: '' } // Redirect to home for unknown routes
 ];
 

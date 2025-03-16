@@ -9,6 +9,64 @@ import { UserService } from './user.service';
   providedIn: 'root'
 })
 export class MediaService {
+  likeMedia(id: number, id1: number): any {
+    throw new Error('Method not implemented.');
+  }
+  getMovieGenres(): Observable<{ id: number, name: string }[]> {
+    const dummyMovieGenres = [
+      { id: 1, name: 'Action' },
+      { id: 2, name: 'Comedy' },
+      { id: 3, name: 'Drama' },
+      { id: 4, name: 'Horror' },
+      { id: 5, name: 'Sci-Fi' }
+    ];
+    return of(dummyMovieGenres);
+  }
+  getTvGenres(): Observable<{ id: number, name: string }[]> {
+    const dummyTvGenres = [
+      { id: 1, name: 'Documentary' },
+      { id: 2, name: 'Reality' },
+      { id: 3, name: 'Fantasy' },
+      { id: 4, name: 'Thriller' },
+      { id: 5, name: 'Animation' }
+    ];
+    return of(dummyTvGenres);
+  }
+  searchAll(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
+    const dummyMovies = [
+      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
+      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
+    ];
+    return of(dummyMovies);
+  }
+  searchPeople(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
+    const dummyMovies = [
+      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
+      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
+    ];
+    return of(dummyMovies);
+  }
+  searchMoviesWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]> {
+    const dummyMovies = [
+      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
+      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
+    ];
+    return of(dummyMovies);
+  }
+  searchTvSeriesWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
+    const dummyMovies = [
+      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
+      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
+    ];
+    return of(dummyMovies);
+  }
+  searchPeopleWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
+    const dummyMovies = [
+      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
+      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
+    ];
+    return of(dummyMovies);
+  }
   private apiUrl = `${environment.apiUrl}/api/media`;
   private movieApiUrl = `${environment.apiUrl}/api/movies`;
   private tvApiUrl = `${environment.apiUrl}/api/tv`;
@@ -38,7 +96,7 @@ export class MediaService {
     const params = new HttpParams().set('query', query);
     return this.http.get<{content:Media[]}>(`${this.apiUrl}/search`, { params }).pipe(
       map(response => response.content)
-    );;
+    );
   }
 
   getMediaByGenre(genre: string): Observable<Media[]> {
@@ -92,6 +150,10 @@ export class MediaService {
   getMovieDetailsById(id: string): Observable<any> {
     const url = `${this.omdbApiUrl}?apikey=${this.omdbApiKey}&i=${id}`;
     return this.http.get(url);
+  }
+
+  getMoviesByAdvancedSearch(prompt: string): Observable<Media[]> {
+    return this.http.post<Media []>(`${this.apiUrl}/advanced-search`, prompt);
   }
 
   getSimilarMedia(movieId: number, genreIds: number[]): Observable<any> {

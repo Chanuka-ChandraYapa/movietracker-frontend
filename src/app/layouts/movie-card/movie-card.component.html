@@ -1,19 +1,21 @@
-<div class="media-container" [ngClass]="displayType === 'grid' ? 'media-grid' : 'media-slider'">
+<div class="media-slider"
+  *ngIf="displayType === 'slider'">
   <div class="loading-spinner" *ngIf="isLoading">
     <div class="spinner"></div>
     <p>Loading media...</p>
   </div>
 
   <div class="slider-wrapper" *ngIf="displayType === 'slider' && !isLoading">
-    <button 
-      class="slider-arrow left-arrow" 
+    <button
+      class="slider-arrow left-arrow"
       [class.hidden]="!showLeftArrow"
-      (click)="slideLeft()" 
+      (click)="slideLeft()"
       aria-label="Slide left">
       <span class="arrow-icon">&#10094;</span>
     </button>
-    
-    <div class="slider-container" #sliderContainer>
+
+    <div class="slider-container" #sliderContainer
+      *ngIf="displayType === 'slider'">
       <div class="media-card" *ngFor="let media of mediaItems">
         <div class="poster">
           <a [routerLink]="[baseRoute, media.id]" (click)="onMediaClick(media)">
@@ -21,10 +23,12 @@
             <div class="media-badge" *ngIf="media.mediaType === 'tv'">TV</div>
           </a>
           <div class="poster-actions">
-            <button class="action-btn watchlist-btn" title="Add to watchlist" (click)="onAddToWatchlist($event, media)">
+            <button class="action-btn watchlist-btn" title="Add to watchlist"
+              (click)="onAddToWatchlist($event, media)">
               <span class="icon">+</span>
             </button>
-            <button class="action-btn like-btn" title="Like" (click)="onLikeMedia($event, media)">
+            <button class="action-btn like-btn" title="Like"
+              (click)="onLikeMedia($event, media)">
               <span class="icon">♥</span>
             </button>
           </div>
@@ -37,50 +41,55 @@
             <span class="year">{{ media.year }}</span>
             <span class="rating" *ngIf="media.averageRating">
               <span class="star filled">★</span>
-              <span class="rating-value">{{ media.averageRating | number: '1.1-1' }}</span>
+              <span class="rating-value">{{ media.averageRating | number:
+                '1.1-1' }}</span>
             </span>
           </div>
         </div>
       </div>
     </div>
-    
-    <button 
-      class="slider-arrow right-arrow" 
+
+    <button
+      class="slider-arrow right-arrow"
       [class.hidden]="!showRightArrow"
-      (click)="slideRight()" 
+      (click)="slideRight()"
       aria-label="Slide right">
       <span class="arrow-icon">&#10095;</span>
     </button>
   </div>
 
-  <!-- Keep regular grid option for backwards compatibility -->
-  <div class="media-grid" *ngIf="displayType === 'grid' && !isLoading">
-    <div class="media-card" *ngFor="let media of mediaItems">
-      <div class="poster">
-        <a [routerLink]="[baseRoute, media.id]" (click)="onMediaClick(media)">
-          <img [src]="media.posterUrl" [alt]="media.title">
-          <div class="media-badge" *ngIf="media.mediaType === 'tv'">TV</div>
-        </a>
-        <div class="poster-actions">
-          <button class="action-btn watchlist-btn" title="Add to watchlist" (click)="onAddToWatchlist($event, media)">
-            <span class="icon">+</span>
-          </button>
-          <button class="action-btn like-btn" title="Like" (click)="onLikeMedia($event, media)">
-            <span class="icon">♥</span>
-          </button>
-        </div>
+</div>
+
+<!-- Keep regular grid option for backwards compatibility -->
+<div class="media-grid" *ngIf="displayType === 'grid' && !isLoading">
+  <div class="media-card" *ngFor="let media of mediaItems">
+    <div class="poster">
+      <a [routerLink]="[baseRoute, media.id]" (click)="onMediaClick(media)">
+        <img [src]="media.posterUrl" [alt]="media.title">
+        <div class="media-badge" *ngIf="media.mediaType === 'tv'">TV</div>
+      </a>
+      <div class="poster-actions">
+        <button class="action-btn watchlist-btn" title="Add to watchlist"
+          (click)="onAddToWatchlist($event, media)">
+          <span class="icon">+</span>
+        </button>
+        <button class="action-btn like-btn" title="Like"
+          (click)="onLikeMedia($event, media)">
+          <span class="icon">♥</span>
+        </button>
       </div>
-      <div class="media-info">
-        <h3 class="media-title">
-          <a [routerLink]="[baseRoute, media.id]">{{ media.title }}</a>
-        </h3>
-        <div class="media-meta">
-          <span class="year">{{ media.releaseDate }}</span>
-          <span class="rating" *ngIf="media.averageRating">
-            <span class="star filled">★</span>
-            <span class="rating-value">{{ media.averageRating | number: '1.1-1' }}</span>
-          </span>
-        </div>
+    </div>
+    <div class="media-info">
+      <h3 class="media-title">
+        <a [routerLink]="[baseRoute, media.id]">{{ media.title }}</a>
+      </h3>
+      <div class="media-meta">
+        <span class="year">{{ media.releaseDate }}</span>
+        <span class="rating" *ngIf="media.averageRating">
+          <span class="star filled">★</span>
+          <span class="rating-value">{{ media.averageRating | number: '1.1-1'
+            }}</span>
+        </span>
       </div>
     </div>
   </div>

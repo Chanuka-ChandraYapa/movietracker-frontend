@@ -8,6 +8,8 @@
 
     <nav class="main-nav">
       <ul>
+        <li><a routerLink="/media-search"
+            routerLinkActive="active">Search</a></li>
         <li><a routerLink="/browse/films"
             routerLinkActive="active">Films</a></li>
         <li><a routerLink="/browse/tv" routerLinkActive="active">TV</a></li>
@@ -41,7 +43,7 @@
                 alt="Profile" class="avatar">
             </button>
             <div class="dropdown-menu">
-              <a [routerLink]="['/profile', user.username]">Profile</a>
+              <a [routerLink]="['/profile', user.id]">Profile</a>
               <a routerLink="/watchlist">Watchlist</a>
               <a routerLink="/lists">My Lists</a>
               <a routerLink="/activity">Activity</a>

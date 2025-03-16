@@ -23,6 +23,8 @@ import { RegisterComponent } from './components/register/register.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
 import { MovieCardComponent } from './layouts/movie-card/movie-card.component';
+import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
+import { MediaSearchComponent } from './components/media-search/media-search.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +41,9 @@ import { MovieCardComponent } from './layouts/movie-card/movie-card.component';
     LoginComponent,
     RegisterComponent,
     SearchResultsComponent,
-    MovieCardComponent
+    MovieCardComponent,
+    AdvancedSearchComponent,
+    MediaSearchComponent
   ],
   imports: [
     AppRoutingModule,

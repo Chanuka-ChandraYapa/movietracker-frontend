@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { from, Observable } from 'rxjs';
-import { User, UserStats, CustomList  } from '../models/user.model';
+import { from, map, Observable } from 'rxjs';
+import { User, UserStats, CustomList, WatchedItem  } from '../models/user.model';
 import { Review, Media } from '../models/media.model';
 import { environment } from '../../environments/environment';
 
@@ -41,8 +41,8 @@ export class UserService {
     return this.http.delete<void>(`${this.apiUrl}/${followerId}/unfollow/${followingId}`);
   }
 
-  getUserWatchlist(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}/watchlist`);
+  getUserWatchlist(id: number): Observable<WatchedItem[]> {
+    return this.http.get<WatchedItem[]>(`${this.apiUrl}/${id}/watchlist`);
   }
 
   getUserStats(id: number): Observable<UserStats> {
@@ -57,8 +57,10 @@ export class UserService {
     return this.http.get<Media[]>(`${this.apiUrl}/${id}/recommendations`);
   }
 
-  getUserRecentlyWatched(id: number): Observable<Media[]> {
-    return this.http.get<Media[]>(`${this.apiUrl}/${id}/recently-watched`);
+  getUserRecentlyWatched(id: number): Observable<WatchedItem[]> {
+    return this.http.get<{content:WatchedItem[]}>(`${this.apiUrl}/${id}/recently-watched`,{ }).pipe(
+          map(response => response.content)
+        );;
   }
 
   getUserLists(id: number): Observable<CustomList[]> {

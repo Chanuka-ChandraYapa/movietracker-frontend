@@ -1,0 +1,73 @@
+<div class="advanced-search-container">
+    <div class="search-header">
+        <h2>Advanced Search</h2>
+        <p class="search-description">
+            Describe what you're looking for in natural language. Try phrases
+            like "sci-fi movies about time travel" or
+            "comedies with Sandra Bullock from the 90s"
+        </p>
+    </div>
+
+    <div class="search-form">
+        <div class="search-input-wrapper">
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Describe what you want to watch..."
+                [(ngModel)]="searchPrompt"
+                (keyup.enter)="performSearch()">
+            <button class="search-button" (click)="performSearch()"
+                [disabled]="isSearching">
+                <span *ngIf="!isSearching"><i
+                        class="fa fa-search"></i></span>
+                <span *ngIf="isSearching" class="spinner"></span>
+            </button>
+        </div>
+
+        <div class="search-examples">
+            <p>Examples:</p>
+            <div class="example-tags">
+                <span class="example-tag"
+                    (click)="useExample('Movies like Inception with mind-bending plots')">
+                    Movies like Inception
+                </span>
+                <span class="example-tag"
+                    (click)="useExample('TV shows about dysfunctional families')">
+                    TV shows about dysfunctional families
+                </span>
+                <span class="example-tag"
+                    (click)="useExample('Classic movies from the 70s with Al Pacino')">
+                    Classic movies with Al Pacino
+                </span>
+                <span class="example-tag"
+                    (click)="useExample('Heartwarming anime series')">
+                    Heartwarming anime
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="hasSearched" class="search-results">
+        <div class="results-header">
+            <h3 *ngIf="searchResults.length > 0">Search Results</h3>
+            <h3 *ngIf="searchResults.length === 0 && !isSearching">No
+                results
+                found</h3>
+            <p *ngIf="searchResults.length > 0" class="results-count">
+                Found {{ searchResults.length }} {{ searchResults.length ===
+                1 ?
+                'result' : 'results' }} for "{{ lastSearchPrompt }}"
+            </p>
+        </div>
+
+        <app-movie-card
+            *ngIf="searchResults.length > 0"
+            [mediaItems]="searchResults"
+            [isLoading]="isSearching"
+            displayType="grid"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </div>
+</div>
