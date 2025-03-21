@@ -25,6 +25,8 @@ import { SearchResultsComponent } from './components/search-results/search-resul
 import { MovieCardComponent } from './layouts/movie-card/movie-card.component';
 import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
 import { MediaSearchComponent } from './components/media-search/media-search.component';
+import { ListDetailsComponent } from './components/list-details/list-details.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -43,7 +45,8 @@ import { MediaSearchComponent } from './components/media-search/media-search.com
     SearchResultsComponent,
     MovieCardComponent,
     AdvancedSearchComponent,
-    MediaSearchComponent
+    MediaSearchComponent,
+    ListDetailsComponent
   ],
   imports: [
     AppRoutingModule,
@@ -52,7 +55,8 @@ import { MediaSearchComponent } from './components/media-search/media-search.com
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatSnackBarModule
   ],
   providers: [
     provideClientHydration(withEventReplay()),

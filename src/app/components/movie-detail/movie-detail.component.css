@@ -80,6 +80,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  position: relative;
 }
 
 .action-btn:hover {
@@ -94,6 +95,44 @@
 .action-btn .icon {
   margin-right: var(--spacing-sm);
   font-size: 1.2em;
+}
+
+.watched {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.watching {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.want-to-watch {
+  background-color: lightskyblue;
+  color: white;
+}
+
+.remove-btn {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 8px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  width: 3rem;
+}
+
+.remove-btn:hover {
+  background-color: rgba(255, 0, 0, 0.5);
 }
 
 /* Movie Info */

@@ -223,7 +223,7 @@
                                 [class.liked]="review.isLiked"
                                 (click)="toggleLikeReview(review)">
                                 <span class="like-icon">♥</span>
-                                <span class="like-count">{{ review.likesCount ||
+                                <span class="like-count">{{ review.likes||
                                     0 }}</span>
                             </button>
                             <button class="btn-comment"

@@ -1,4 +1,4 @@
-<div class="home-hero">
+<div class="home-hero" *ngIf="!(currentUser$ | async)">
   <div class="poster-container">
     <div class="poster"
       [ngStyle]="{'background-image': 'url(' + posterUrls[0] + ')'}"></div>
@@ -18,6 +18,72 @@
       <a routerLink="/browse/films" class="btn btn-secondary btn-lg"
         *ngIf="currentUser$ | async">Browse Films</a>
     </div>
+  </div>
+</div>
+
+<div class="movie-of-day-container">
+  <div class="motd-header">
+    <h2 class="section-title">Movie of the Day</h2>
+    <span class="date-indicator">{{ today | date:'longDate' }}</span>
+  </div>
+
+  <div class="motd-content"
+    *ngIf="!isLoading3 && !errorLoading && movieOfTheDay">
+    <div class="motd-card"
+      [ngStyle]="{'background-image': 'url(' + movieOfTheDay.backdropUrl + ')'}">
+      <div class="motd-overlay">
+        <div class="motd-info">
+          <div class="motd-poster">
+            <img [src]="movieOfTheDay.posterUrl"
+              [alt]="movieOfTheDay.title + ' poster'" (click)="onMovieClick()">
+          </div>
+          <div class="motd-details">
+            <h3 class="motd-title" (click)="onMovieClick()">{{
+              movieOfTheDay.title }}</h3>
+            <div class="motd-meta">
+              <span class="motd-year">{{ releaseYear }}</span>
+              <span class="motd-runtime" *ngIf="formattedRuntime">{{
+                formattedRuntime }}</span>
+              <span class="motd-rating" *ngIf="movieOfTheDay.averageRating">
+                <i class="fa fa-star"></i> {{ movieOfTheDay.averageRating |
+                number:'1.1-1' }}
+              </span>
+            </div>
+            <div class="motd-genres" *ngIf="genresList">{{ genresList }}</div>
+            <p class="motd-overview">{{ truncatedOverview }}</p>
+            <div class="motd-actions">
+              <button class="action-btn primary-btn" (click)="onMovieClick()">
+                <i class="fa fa-info-circle"></i> View Details
+              </button>
+              <button class="action-btn secondary-btn"
+                (click)="onAddToWatchlist(movieOfTheDay)">
+                <i class="fa fa-plus"></i> Watchlist
+              </button>
+              <button class="action-btn accent-btn"
+                (click)="onLikeMedia(movieOfTheDay)">
+                <i class="fa fa-heart"></i> Like
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="motd-tagline" *ngIf="movieOfTheDay.tagline">
+          "{{ movieOfTheDay.tagline }}"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="motd-loading" *ngIf="isLoading3">
+    <div class="loading-spinner"></div>
+    <p>Finding today's featured movie...</p>
+  </div>
+
+  <div class="motd-error" *ngIf="!isLoading3 && errorLoading">
+    <div class="error-icon">
+      <i class="fa fa-exclamation-triangle"></i>
+    </div>
+    <p>Could not load the movie of the day</p>
+    <button class="retry-btn" (click)="retryLoading()">Try Again</button>
   </div>
 </div>
 
@@ -45,7 +111,7 @@
     </div>
     <app-movie-card
       [mediaItems]="reccomendedMedia"
-      [isLoading]="isLoading"
+      [isLoading]="isLoading2"
       displayType="slider"
       [cardsToSlide]="4"
       (addToWatchlist)="onAddToWatchlist($event)"

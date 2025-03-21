@@ -378,3 +378,81 @@ body {
     opacity: 1;
   }
 }
+
+.notification-snackbar {
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+
+  .mat-simple-snackbar {
+    font-family: inherit;
+  }
+
+  .mat-simple-snackbar-action {
+    color: var(--color-text-primary);
+  }
+}
+
+.success-notification {
+  background-color: var(--color-accent);
+  color: #fff;
+
+  .mat-simple-snackbar-action {
+    color: #fff;
+  }
+}
+
+.error-notification {
+  background-color: var(--color-error);
+  color: #fff;
+
+  .mat-simple-snackbar-action {
+    color: #fff;
+  }
+}
+
+.warning-notification {
+  background-color: var(--color-warning);
+  color: #fff;
+
+  .mat-simple-snackbar-action {
+    color: #fff;
+  }
+}
+
+.info-notification {
+  background-color: var(--color-background-light);
+  color: var(--color-text-primary);
+
+  .mat-simple-snackbar-action {
+    color: var(--color-accent);
+  }
+}
+
+/* styles.css or styles.scss */
+
+/* Custom scrollbar for the entire application */
+::-webkit-scrollbar {
+  width: 6px; /* Width of the scrollbar */
+  transition: all 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar:hover {
+  width: 8px; /* Width of the scrollbar */
+}
+
+/* Track (the background of the scrollbar) */
+::-webkit-scrollbar-track {
+  background: var(--color-background-light); /* Light gray background */
+  border-radius: 10px; /* Rounded corners */
+}
+
+/* Handle (the draggable part of the scrollbar) */
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent-dark); /* Gray color */
+  border-radius: 10px; /* Rounded corners */
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent); /* Darker gray on hover */
+}

@@ -1,1 +1,204 @@
-<p>watchlist works!</p>
+<div class="watchlist-container">
+    <div class="watchlist-header">
+        <h1>My Watchlist</h1>
+        <div class="watchlist-actions">
+            <div class="filter-controls">
+                <button class="filter-btn"
+                    [class.active]="activeFilter === 'all'"
+                    (click)="filterWatchlist('all')">All</button>
+                <button class="filter-btn"
+                    [class.active]="activeFilter === 'watching'"
+                    (click)="filterWatchlist('watching')">Watching</button>
+                <button class="filter-btn"
+                    [class.active]="activeFilter === 'completed'"
+                    (click)="filterWatchlist('completed')">Completed</button>
+                <button class="filter-btn"
+                    [class.active]="activeFilter === 'plan-to-watch'"
+                    (click)="filterWatchlist('plan-to-watch')">Plan to
+                    Watch</button>
+                <button class="filter-btn"
+                    [class.active]="activeFilter === 'dropped'"
+                    (click)="filterWatchlist('dropped')">Dropped</button>
+            </div>
+            <div class="sort-controls">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" [(ngModel)]="sortOption"
+                    (change)="sortWatchlist()">
+                    <option value="added-date-desc">Recently Added</option>
+                    <option value="added-date-asc">Oldest Added</option>
+                    <option value="rating-desc">Highest Rated</option>
+                    <option value="rating-asc">Lowest Rated</option>
+                    <option value="watched-date-desc">Recently Watched</option>
+                    <option value="title-asc">Title A-Z</option>
+                </select>
+            </div>
+        </div>
+        <div class="view-controls">
+            <button class="view-btn" [class.active]="viewMode === 'list'"
+                (click)="changeViewMode('list')">
+                <i class="fa fa-list"></i> List
+            </button>
+            <button class="view-btn" [class.active]="viewMode === 'grid'"
+                (click)="changeViewMode('grid')">
+                <i class="fa fa-th-large"></i> Grid
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading watchlist...</p>
+    </div>
+
+    <div *ngIf="!isLoading && watchlistItems.length === 0"
+        class="empty-watchlist">
+        <div class="empty-state">
+            <i class="fa fa-film empty-icon"></i>
+            <h2>Your watchlist is empty</h2>
+            <p>Start adding movies and shows to your watchlist to keep track of
+                what you want to watch.</p>
+            <button class="explore-btn" routerLink="/explore">Explore Movies &
+                Shows</button>
+        </div>
+    </div>
+
+    <ng-container *ngIf="!isLoading && watchlistItems.length > 0">
+        <!-- Grid View -->
+        <div *ngIf="viewMode === 'grid'" class="watchlist-grid">
+            <app-movie-card
+                [mediaItems]="mediaItems | slice:(currentPage-1)*itemsPerPage:currentPage*itemsPerPage"
+                [isLoading]="false"
+                displayType="grid"
+                (addToWatchlist)="onAddToWatchlist($event)"
+                (likeMedia)="onLikeMedia($event)"
+                (mediaClick)="onMediaClick($event)">
+            </app-movie-card>
+        </div>
+
+        <!-- List View -->
+        <div *ngIf="viewMode === 'list'" class="watchlist-list">
+            <div
+                *ngFor="let item of watchlistItems | slice:(currentPage-1)*itemsPerPage:currentPage*itemsPerPage"
+                class="watchlist-item">
+                <div class="media-details">
+                    <img [src]="item.media.posterUrl" [alt]="item.media.title"
+                        class="media-poster" (click)="onMediaClick(item.media)">
+                    <div class="media-info">
+                        <h3 class="media-title"
+                            (click)="onMediaClick(item.media)">{{
+                            item.media.title }}</h3>
+                        <p class="media-year">{{ item.media.releaseDate |
+                            date:'yyyy' }}</p>
+                        <div class="status-badge" [ngClass]="item.status">{{
+                            item.status }}</div>
+                        <div class="media-actions">
+                            <div class="rating-container">
+                                <span>Your rating:</span>
+                                <div class="star-rating">
+                                    <i *ngFor="let star of [1,2,3,4,5]"
+                                        class="fa"
+                                        [ngClass]="star <= item.rating ? 'fa-star' : 'fa-star-o'"
+                                        (click)="updateRating(item, star)">
+                                    </i>
+                                </div>
+                            </div>
+                            <div class="watch-date" *ngIf="item.watchedDate">
+                                <span>Watched: {{ item.watchedDate | date
+                                    }}</span>
+                                <span *ngIf="item.rewatch">(Rewatched {{
+                                    item.rewatchCount }} times)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn"
+                        (click)="openEditModal(item)">
+                        <i class="fa fa-edit"></i> Edit
+                    </button>
+                    <button class="action-btn remove-btn"
+                        (click)="removeFromWatchlist(item)">
+                        <i class="fa fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button class="page-btn" [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="page-indicator">{{ currentPage }} of {{ totalPages
+                }}</span>
+            <button class="page-btn" [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </ng-container>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal" *ngIf="showEditModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Watchlist Item</h2>
+            <button class="close-btn" (click)="closeEditModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="media-preview">
+                <img [src]="selectedItem?.media?.posterUrl"
+                    [alt]="selectedItem?.media?.title"
+                    class="media-poster-small">
+                <h3>{{ selectedItem?.media?.title }}</h3>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" [(ngModel)]="editForm.status">
+                    <option value="watching">Watching</option>
+                    <option value="completed">Completed</option>
+                    <option value="plan-to-watch">Plan to Watch</option>
+                    <option value="dropped">Dropped</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <div class="star-rating-edit">
+                    <i *ngFor="let star of [1,2,3,4,5]"
+                        class="fa"
+                        [ngClass]="star <= editForm.rating ? 'fa-star' : 'fa-star-o'"
+                        (click)="editForm.rating = star">
+                    </i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="watchedDate">Watched Date:</label>
+                <input type="date" id="watchedDate"
+                    [(ngModel)]="editForm.watchedDate">
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="rewatch"
+                    [(ngModel)]="editForm.rewatch">
+                <label for="rewatch">Rewatch</label>
+            </div>
+
+            <div class="form-group" *ngIf="editForm.rewatch">
+                <label for="rewatchCount">Rewatch Count:</label>
+                <input type="number" id="rewatchCount"
+                    [(ngModel)]="editForm.rewatchCount" min="1">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn"
+                (click)="closeEditModal()">Cancel</button>
+            <button class="save-btn" (click)="saveWatchlistItem()">Save
+                Changes</button>
+        </div>
+    </div>
+</div>

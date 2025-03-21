@@ -13,6 +13,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
 import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
 import { MediaSearchComponent } from './components/media-search/media-search.component';
+import { ListDetailsComponent } from './components/list-details/list-details.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'reviews/:id', component: ReviewDetailComponent },
   { path: 'watchlist', component: WatchlistComponent },
   { path: 'lists', component: CustomListsComponent },
+  { path: 'lists/:id', component: ListDetailsComponent },
   { path: 'search', component: SearchResultsComponent },
   { path: 'advanced-search', component: AdvancedSearchComponent },
   { path: 'media-search', component: MediaSearchComponent },

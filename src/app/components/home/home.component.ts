@@ -8,6 +8,9 @@ import { allPosterUrls } from '../../models/media.model';
 import { Observable, take } from 'rxjs';
 import { UserService } from '../../services/user.service';
 import { error } from 'console';
+import { WatchlistService } from '../../services/watchlist.service';
+import { Router } from '@angular/router';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -17,9 +20,15 @@ import { error } from 'console';
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   currentUser$: Observable<User | null>;
+  currentUser: User | null = null;
   trendingMedia: Media[] = [];
   reccomendedMedia: Media[] = [];
   isLoading = true;
+  isLoading2 = true;
+  isLoading3 = true;
+  errorLoading = false;
+  today = new Date();
+  movieOfTheDay: Media | null = null;
   backgroundImages = [
     'https://www.everysingleframe.com/images/Blade_title.png',
     'https://www.everysingleframe.com/images/amelie_title.jpeg',
@@ -40,6 +49,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private authService: AuthService,
     private mediaService: MediaService,
     private userService: UserService,
+    private watchService: WatchlistService,
+    private router: Router,
+    private notificationService: NotificationService,
     private ngZone: NgZone,
     private http: HttpClient,
   ) {
@@ -64,6 +76,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.fetchTrendingMedia();
     this.fetchReccomendedMedia();
+    this.loadMovieOfTheDay();
   }
 
   loadPostersFromTextFile(): void {
@@ -119,10 +132,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onAddToWatchlist(media: Media): void {
-    // this.mediaService.addToWatchlist(media.id).subscribe(
-    //   () => console.log('Added to watchlist:', media.title),
-    //   (error) => console.error('Error adding to watchlist', error)
-    // );
+    // if(this.currentUser != null) {
+    //   this.watchService.addToWatchlist(this.currentUser.id, media.id).subscribe(
+    //     () => console.log('Added to watchlist:', media.title),
+    //     (error) => console.error('Error adding to watchlist', error)
+    //   );
+    // }
   }
 
   onLikeMedia(media: Media): void {
@@ -174,6 +189,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.isLoading = true;
     this.currentUser$.subscribe(user => {
       if (user) {
+        this.currentUser = user;
         this.userService.getUserRecommendations(user.id).subscribe(
           (response: any) => {
             if (response) {
@@ -192,19 +208,105 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 averageRating: 0, // OMDB API doesn't provide ratings in search results
                 watchCount: 0, // Default watch count
               }));
-              this.isLoading = false;
+              this.isLoading2 = false;
               console.log(response);
             }
           },
           (error) => {
             console.error('Error fetching trending media:', error);
-            this.isLoading = false;
+            this.isLoading2 = false;
           }
         );
       }
     });
+  }
+
+  loadMovieOfTheDay(): void {
+    this.isLoading3 = true;
+    this.errorLoading = false;
+
+    // Generate a seed based on the current date to ensure the same movie is shown all day
+    // but changes each day
+    const dateSeed = `${this.today.getFullYear()}-${this.today.getMonth() + 1}-${this.today.getDate()}`;
     
-    
+    this.mediaService.getMovieOfTheDay(dateSeed).subscribe({
+      next: (movie) => {
+        this.movieOfTheDay = movie;
+        this.isLoading3 = false;
+      },
+      error: (error) => {
+        console.error('Error loading movie of the day:', error);
+        this.isLoading3 = false;
+        this.errorLoading = true;
+        this.notificationService.showError('Failed to load movie of the day');
+      }
+    });
+  }
+
+  onMovieClick(): void {
+    if (this.movieOfTheDay) {
+      this.router.navigate(['/movies', this.movieOfTheDay.id]);
+    }
+  }
+
+  // addToWatchlist(): void {
+  //   if (this.movieOfTheDay) {
+  //     this.mediaService.addToWatchlist(this.movieOfTheDay.id).subscribe({
+  //       next: () => {
+  //         this.notificationService.showSuccess('Added to your watchlist');
+  //       },
+  //       error: (error) => {
+  //         console.error('Error adding to watchlist:', error);
+  //         this.notificationService.showError('Failed to add to watchlist');
+  //       }
+  //     });
+  //   }
+  // }
+
+  // likeMovie(): void {
+  //   if (this.movieOfTheDay) {
+  //     this.mediaService.likeMedia(this.movieOfTheDay.id).subscribe({
+  //       next: () => {
+  //         this.notificationService.showSuccess('Added to your favorites');
+  //       },
+  //       error: (error) => {
+  //         console.error('Error adding to favorites:', error);
+  //         this.notificationService.showError('Failed to add to favorites');
+  //       }
+  //     });
+  //   }
+  // }
+
+  // Get a truncated version of the overview for display
+  get truncatedOverview(): string {
+    if (!this.movieOfTheDay?.overview) return '';
+    return this.movieOfTheDay.overview.length > 200 
+      ? `${this.movieOfTheDay.overview.substring(0, 200)}...` 
+      : this.movieOfTheDay.overview;
+  }
+
+  // Get the release year for display
+  get releaseYear(): string {
+    if (!this.movieOfTheDay?.releaseDate) return '';
+    return new Date(this.movieOfTheDay.releaseDate).getFullYear().toString();
+  }
+
+  // Format the genre list for display
+  get genresList(): string {
+    if (!this.movieOfTheDay?.genres || this.movieOfTheDay.genres.length === 0) return '';
+    return this.movieOfTheDay.genres.map(genre => genre.name).join(', ');
+  }
+
+  // Format the runtime for display
+  get formattedRuntime(): string {
+    if (!this.movieOfTheDay?.runtime) return '';
+    const hours = Math.floor(this.movieOfTheDay.runtime / 60);
+    const minutes = this.movieOfTheDay.runtime % 60;
+    return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  }
+
+  retryLoading(): void {
+    this.loadMovieOfTheDay();
   }
 }
 

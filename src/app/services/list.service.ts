@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CustomList } from '../models/user.model';
 import { environment } from '../../environments/environment';
@@ -14,6 +14,14 @@ export class ListService {
 
   getList(id: number): Observable<CustomList> {
     return this.http.get<CustomList>(`${this.apiUrl}/${id}`);
+  }
+
+  getAllPublicLists(page: number = 0, size: number = 10): Observable<any> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    return this.http.get<any>(`${this.apiUrl}`, { params });
   }
 
   createList(userId: number, list: Partial<CustomList>): Observable<CustomList> {

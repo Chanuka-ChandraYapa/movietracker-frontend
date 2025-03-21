@@ -28,6 +28,7 @@ export class ReviewService {
   }
 
   likeReview(id: number): Observable<void> {
+    console.log("like", id)
     return this.http.post<void>(`${this.apiUrl}/${id}/like`, {});
   }
 }

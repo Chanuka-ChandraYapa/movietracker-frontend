@@ -1,1 +1,71 @@
-<p>custom-lists works!</p>
+<div class="lists-container">
+    <header class="page-header">
+        <h1>Custom Lists</h1>
+        <div class="filters">
+            <button class="filter-btn active">All Lists</button>
+            <button class="filter-btn">Popular</button>
+            <button class="filter-btn">Recent</button>
+        </div>
+    </header>
+
+    <div class="lists-grid">
+        <div class="list-card" *ngFor="let list of customLists"
+            (click)="navigateToList(list.id)">
+            <div class="list-header">
+                <div class="list-creator">
+                    <img
+                        [src]="list.user.avatarUrl || 'assets/default-avatar.png'"
+                        alt="User avatar" class="avatar">
+                    <span class="username">{{ list.user.displayName ||
+                        list.user.username }}</span>
+                </div>
+                <div class="list-meta">
+                    <span class="list-date">{{ list.createdAt |
+                        date:'mediumDate' }}</span>
+                    <span class="list-visibility"
+                        [class.public]="list.isPublic">
+                        {{ list.isPublic ? 'Public' : 'Private' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="list-content">
+                <h2 class="list-title">{{ list.name }}</h2>
+                <p class="list-description">{{ list.description | slice:0:120
+                    }}{{ list.description.length > 120 ? '...' : '' }}</p>
+            </div>
+
+            <div class="list-preview">
+                <div class="media-count">{{ list.items.length }} items</div>
+                <div class="media-posters">
+                    <div class="poster-container"
+                        *ngFor="let media of list.items.slice(0, 4)">
+                        <img
+                            [src]="media.posterUrl || 'assets/default-poster.jpg'"
+                            alt="{{ media.title }}" class="poster">
+                        <div class="poster-year">{{ media.year }}</div>
+                    </div>
+                    <div class="more-posters" *ngIf="list.items.length > 4">
+                        +{{ list.items.length - 4 }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="empty-state" *ngIf="customLists.length === 0">
+        <div class="empty-icon">📋</div>
+        <h2>No Lists Found</h2>
+        <p>Create your first list or adjust your filters</p>
+        <button class="btn-accent">Create New List</button>
+    </div>
+
+    <div class="pagination" *ngIf="customLists.length > 0">
+        <button class="pagination-btn"
+            [disabled]="currentPage === 1">Previous</button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages
+            }}</span>
+        <button class="pagination-btn"
+            [disabled]="currentPage === totalPages">Next</button>
+    </div>
+</div>

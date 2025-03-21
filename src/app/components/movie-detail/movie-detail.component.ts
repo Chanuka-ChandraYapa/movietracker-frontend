@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { MediaService } from '../../services/media.service';
 import { AuthService } from '../../services/auth.service';
 import { Media, TvSeason } from '../../models/media.model';
-import { User } from '../../models/user.model';
+import { User, WatchedItem } from '../../models/user.model';
 import { Observable, forkJoin, of, switchMap, catchError } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { WatchlistService } from '../../services/watchlist.service';
@@ -37,14 +37,16 @@ export class MovieDetailComponent implements OnInit {
   currentUser$: Observable<User | null>;
   movie: Media | null = null;
   similarMovies: Media[] = [];
+  directorMovies: Media[] = [];
   isLoading = true;
   error: string | null = null;
   isInWatchlist = false;
   showWatchlistModal = false;
   watchlistForm: FormGroup;
+  watchedDetails: WatchedItem = {} as WatchedItem;
   userRating = 0;
   cast: any[] = [];
-  crew: { directors: any[], writers: any[]} = { directors: [], writers: [] };
+  crew: { directors: any[], writers: any[], producers: any[]} = { directors: [], writers: [], producers:[] };
   trailerUrl: SafeResourceUrl | null = null;
   activeTab = 'overview';
   selectedSeason: number = 1;
@@ -126,7 +128,9 @@ export class MovieDetailComponent implements OnInit {
         this.processMovieData(result.movieDetails);
         this.processCastAndCrew(result.movieDetails);
         // this.processVideoData(result.videos);
-        this.fetchSimilarMovies(result.movieDetails.id, result.movieDetails.genres);
+        this.fetchSimilarMovies(result.movieDetails.id);
+        this.fetchMoviesFromDirector();
+        this.getWatchedItem();
         this.checkUserInteractions(result.movieDetails.id);
         if (this.activeTab == "media") {
           this.fetchTrailer();
@@ -161,16 +165,28 @@ export class MovieDetailComponent implements OnInit {
       this.cast = (creditsData.actors || []).slice(0, 10);
 
       for (const actor of this.cast) {
+        if (!actor.actorUrl) {
+
         this.searchActorImage(actor.name).subscribe({
           next: (response: any) => {
             if (response.items && response.items.length > 0) {
-              actor.profile_path = response.items[0].link; // Get the first image URL
+              actor.actorUrl = response.items[0].link; // Get the first image URL
+              this.mediaService.updateActor(actor.id, actor.actorUrl).subscribe({
+                next: () => {
+                  console.log('Actor image updated');
+                },
+                error: (error) => {
+                  console.error('Error updating actor image:', error);
+                }
+              });
             }
           },
           error: (error) => {
             console.error(error);
           },
         });
+        console.log("api called")
+      }
       }
       
       // Get director, writers, and cinematographers
@@ -178,12 +194,14 @@ export class MovieDetailComponent implements OnInit {
         // const directors = creditsData.crew.filter((person: any) => person.job === 'Director');
         const directors = creditsData.director ? creditsData.director.split(',').map((name: string) => ({ name: name.trim() })) : [];
         const writers = creditsData.writer ? creditsData.writer.split(',').map((name: string) => ({ name: name.trim() })) : [];
+        const producers = creditsData.producer ? creditsData.producer.split(',').map((name: string) => ({ name: name.trim() })) : [];
         // const cinematographers = creditsData.crew.filter((person: any) => 
         //   person.job === 'Director of Photography' || person.job === 'Cinematographer');
         
         this.crew = {
           directors,
-          writers
+          writers,
+          producers
         };
       }
     }
@@ -216,51 +234,38 @@ export class MovieDetailComponent implements OnInit {
   //   }
   // }
 
-  private fetchSimilarMovies(movieId: number, genres: any[]): void {
-    if (!movieId || !genres || genres.length === 0) {
+  private fetchSimilarMovies(movieId: number): void {
+    if (!movieId) {
       return;
     }
-    
-    // Extract genre IDs
-    const genreNames = genres.map(g => g.name || g);
-    console.log(genreNames);
-    
-    forkJoin(genreNames.map(genreName => this.mediaService.getMediaByGenre(genreName))).subscribe(
-      (responses: any[]) => {
-      const allMovies = responses.flatMap(response => response || []);
-      console.log(allMovies);
-      const uniqueMovies = Array.from(new Set(allMovies.map(movie => movie.id)))
-        .map(id => allMovies.find(movie => movie.id === id))
 
-      const randomMovies = uniqueMovies.sort(() => 0.5 - Math.random()).slice(0, 10);;
-      
-      this.similarMovies = randomMovies.map((movieData: any) => ({
-          id: movieData.id,
-          title: movieData.title,
-          originalTitle: movieData.originalTitle || movieData.original_title,
-          posterUrl: movieData.posterUrl || movieData.poster_path,
-          backdropUrl: movieData.backdropUrl || movieData.backdrop_path,
-          releaseDate: movieData.year || movieData.release_date,
-          year: movieData.year || new Date(movieData.release_date).getFullYear(),
-          overview: movieData.overview,
-          genres: movieData.genres || [],
-          mediaType: 'movie',
-          runtime: movieData.runtime || 0,
-          status: movieData.status || 'Released',
-          averageRating: movieData.vote_average || movieData.averageRating || 0,
-          watchCount: movieData.watchCount || 0,
-          budget: movieData.budget || 0,
-          revenue: movieData.revenue || 0,
-          tagline: movieData.tagline || '',
-          voteCount: movieData.vote_count || 0,
-          originalLanguage: movieData.original_language || 'en'
-      }));
+    this.mediaService.getSimilarMedia(movieId).subscribe(
+      movies => {
+        this.similarMovies = movies;
       },
-      (error) => {
-      console.error('Error fetching similar movies:', error);
+      error => {
+        console.error('Error fetching similar movies:', error);
       }
     );
+    
   }
+
+  private fetchMoviesFromDirector(): void {
+    if (!this.crew.directors) {
+      return;
+    }
+
+    this.mediaService.getMoviesFromDirector(this.crew.directors.map(director => director.name)).subscribe(
+      movies => {
+      this.directorMovies = movies.filter(movie => movie.id !== this.movie?.id);
+      },
+      error => {
+      console.error('Error fetching movies from director:', error);
+      }
+    );
+    
+  }
+
 
   private checkUserInteractions(movieId: number): void {
     this.currentUser$.subscribe(user => {
@@ -303,7 +308,35 @@ export class MovieDetailComponent implements OnInit {
     });
   }
 
+  getWatchedItem(): void {
+    this.watchedDetails = {} as WatchedItem;
+    this.currentUser$.subscribe(user => {
+      if (user && this.movie) {
+        this.mediaService.getWatchedItem(user.id, this.movie.id).subscribe(
+          watchedItem => {
+            if (watchedItem) {
+              this.watchedDetails = watchedItem;
+              this.watchlistForm.get('status')?.setValue(watchedItem.status);
+              this.watchlistForm.get('rating')?.setValue(watchedItem.rating);
+              this.watchlistForm.get('watchedDate')?.setValue(watchedItem.watchedDate);
+              this.watchlistForm.get('rewatch')?.setValue(watchedItem.rewatch);
+              this.watchlistForm.get('rewatchCount')?.setValue(watchedItem.rewatchCount);
+              this.userRating = watchedItem.rating || 0;
+            }
+          },
+          error => {
+            console.error('Error getting watched item:', error);
+          }
+        );
+      }
+    });
+  }
+
   toggleWatchlist(): void {
+      this.showWatchlistModal = true;
+  }
+
+  removeFromWatchlist(): void {
     if (this.isInWatchlist) {
       // Remove from watchlist without showing modal
       this.currentUser$.subscribe(user => {
@@ -311,6 +344,9 @@ export class MovieDetailComponent implements OnInit {
           this.watchListService.removeFromWatchlist(user.id, this.movie.id).subscribe(
             () => {
               this.isInWatchlist = false;
+              if (this.watchedDetails) {
+                this.watchedDetails.status = "";
+              }
             },
             error => {
               console.error('Error removing from watchlist:', error);
@@ -318,12 +354,48 @@ export class MovieDetailComponent implements OnInit {
           );
         }
       });
-    } else {
-      // Show modal to add to watchlist
-      this.showWatchlistModal = true;
+    } 
+  }
+
+  getButtonIcon(): string {
+    switch (this.watchedDetails?.status) {
+      case 'WATCHED':
+        return '✓';
+      case 'WATCHING':
+        return '▶';
+      case 'WANT_TO_WATCH':
+        return '+';
+      default:
+        return '+';
     }
   }
-  
+
+  getButtonLabel(): string {
+    switch (this.watchedDetails?.status) {
+      case 'WATCHED':
+        return 'Watched';
+      case 'WATCHING':
+        return 'Watching';
+      case 'WANT_TO_WATCH':
+        return 'Want to Watch';
+      default:
+        return 'Add to Watchlist';
+    }
+  }
+
+  getButtonTitle(): string {
+    switch (this.watchedDetails?.status) {
+      case 'WATCHED':
+        return 'Mark as Want to Watch';
+      case 'WATCHING':
+        return 'Mark as Watched';
+      case 'WANT_TO_WATCH':
+        return 'Mark as Watching';
+      default:
+        return 'Add to Watchlist';
+    }
+  }
+
   closeModal(event: MouseEvent): void {
     // Close modal only if backdrop or close button is clicked
     if (
@@ -358,6 +430,12 @@ export class MovieDetailComponent implements OnInit {
         this.watchListService.addToWatchlistWithDetails(user.id, this.movie.id, watchlistData).subscribe(
           () => {
             this.isInWatchlist = true;
+
+              this.watchedDetails.status = watchlistData.status;
+              if (watchlistData.rating){
+                this.userRating = watchlistData.rating;
+              }
+
             this.showWatchlistModal = false;
           },
           error => {

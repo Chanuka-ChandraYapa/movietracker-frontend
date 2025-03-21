@@ -118,7 +118,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         this.filterWatchedItems();
         this.sortReviews();
         this.isLoading = false;
-        console.log("recent", recentWatched);
+        console.log("lists", lists);
       },
       error: (error) => {
         console.error('Error loading user data:', error);
@@ -231,7 +231,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       return;
     }
     
-    let filtered = this.watchedItems.map(item => item.media);
+    let filtered = this.watchedItems.map(item => ({
+      ...item.media,
+       mediaType: ((item.media.numberOfSeasons ?? 0) > 0 ? 'tv' : 'movie') as 'tv' | 'movie'
+      }));
     
     if (this.watchedFilter === 'movies') {
       filtered = filtered.filter(media => media.mediaType === 'movie');
@@ -346,7 +349,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             })
           );
         } else {
-          return this.reviewService.likeReview( currentUser.id).pipe(
+          return this.reviewService.likeReview(review.id).pipe(
             tap(() => {
               review.isLiked = true;
               review.likesCount = (review.likesCount || 0) + 1;

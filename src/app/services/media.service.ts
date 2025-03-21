@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Media, Review, Movie, TvSeries } from '../models/media.model';
+import { WatchedItem } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
 
@@ -156,37 +157,30 @@ export class MediaService {
     return this.http.post<Media []>(`${this.apiUrl}/advanced-search`, prompt);
   }
 
-  getSimilarMedia(movieId: number, genreIds: number[]): Observable<any> {
-    // Mock implementation
-    return of({
-      results: [
-        {
-          id: 1,
-          title: 'Similar Movie 1',
-          poster_path: 'path/to/poster1.jpg',
-          backdrop_path: 'path/to/backdrop1.jpg',
-          release_date: '2022-01-01',
-          overview: 'Overview of similar movie 1',
-          genre_ids: genreIds,
-          vote_average: 7.5
-        },
-        {
-          id: 2,
-          title: 'Similar Movie 2',
-          poster_path: 'path/to/poster2.jpg',
-          backdrop_path: 'path/to/backdrop2.jpg',
-          release_date: '2022-02-01',
-          overview: 'Overview of similar movie 2',
-          genre_ids: genreIds,
-          vote_average: 8.0
-        }
-      ]
-    });
+  getSimilarMedia(movieId: number): Observable<Media[]> {
+    return this.http.get<Media[]>(`${this.apiUrl}/similar-media/${movieId}`);
+  }
+
+  getMoviesFromDirector(directors: string[]): Observable<Media[]>{
+    console.log(directors);
+    return this.http.post<Media[]>(`${this.apiUrl}/media-by-director`, directors);
   }
 
   isInWatchlist(userId: number, movieId: number): Observable<boolean> {
     return this.userService.getUserWatchlist(userId).pipe(
       map(watchlist => watchlist.some((watchedItem: { media: { id: number; }; }) => watchedItem.media.id === movieId))
+    );
+  }
+  
+  getWatchedItem(userId: number, movieId: number): Observable<WatchedItem> {
+    return this.userService.getUserWatchlist(userId).pipe(
+      map(watchlist => watchlist.find((watchedItem: { media: { id: number; }; }) => watchedItem.media.id === movieId)),
+      map(watchedItem => {
+        if (!watchedItem) {
+          throw new Error('Watched item not found');
+        }
+        return watchedItem;
+      })
     );
   }
 
@@ -195,6 +189,23 @@ export class MediaService {
       map(reviews => {
         const review = reviews.find(r => r.media.id === movieId);
         return review ? review.likes : 0;
+      })
+    );
+  }
+
+  updateActor(actorId: number, actorImageUrl: string): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${actorId}/actor`, { actorImageUrl });
+  }
+
+  getMovieOfTheDay(dateSeed: string): Observable<Media | null> {
+    // Option 1: If you have a dedicated endpoint for movie of the day
+    return this.http.get<Media>(`${this.apiUrl}/movie-of-the-day`, {
+      params: new HttpParams().set('seed', dateSeed)
+    }).pipe(
+      catchError(error => {
+        console.error('Error fetching movie of the day:', error);
+        // Fallback option: Get a popular movie instead
+        return of(null); // or any other fallback observable
       })
     );
   }

@@ -1,0 +1,115 @@
+<div class="list-details-container" *ngIf="customList; else loading">
+    <!-- Header section with backdrop -->
+    <div class="list-header" [ngStyle]="headerStyle">
+        <div class="list-header-content">
+            <div class="list-info">
+                <h1 class="list-title">{{ customList.name }}</h1>
+                <div class="list-meta">
+                    <div class="list-creator">
+                        <img
+                            [src]="customList.user.avatarUrl || 'assets/images/default-avatar.png'"
+                            alt="User avatar" class="creator-avatar">
+                        <span>by <a
+                                [routerLink]="['/users', customList.user.username]">{{
+                                customList.user.displayName ||
+                                customList.user.username }}</a></span>
+                    </div>
+                    <div class="list-stats">
+                        <span class="stat-item">{{ customList.items.length }}
+                            items</span>
+                        <span class="stat-item">{{ customList.isPublic ?
+                            'Public' : 'Private' }}</span>
+                        <span class="stat-item">Created {{ customList.createdAt
+                            | date }}</span>
+                        <span class="stat-item"
+                            *ngIf="customList.createdAt !== customList.updatedAt">Updated
+                            {{ customList.updatedAt | date }}</span>
+                    </div>
+                </div>
+                <p class="list-description" *ngIf="customList.description">{{
+                    customList.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media items section -->
+    <div class="list-content">
+        <div class="media-container">
+            <h2 class="section-title">Items in this list</h2>
+            <app-movie-card
+                [mediaItems]="customList.items"
+                [isLoading]="false"
+                displayType="grid"
+                (addToWatchlist)="onAddToWatchlist($event)"
+                (likeMedia)="onLikeMedia($event)"
+                (mediaClick)="onMediaClick($event)">
+            </app-movie-card>
+        </div>
+
+        <!-- More from this user section -->
+        <div class="more-from-user">
+            <h2 class="section-title">More lists by {{
+                customList.user.displayName || customList.user.username }}</h2>
+            <div class="more-lists-placeholder" *ngIf="userLists.length==0">
+                <p class="placeholder-text">No more lists...</p>
+            </div>
+            <div class="user-lists-grid" *ngIf="userLists.length>0">
+                <div class="user-list-card" *ngFor="let list of userLists"
+                    (click)="navigateToList(list.id)">
+                    <div class="user-list-header">
+                        <div class="user-list-creator">
+                            <img
+                                [src]="list.user.avatarUrl || 'assets/default-avatar.png'"
+                                alt="User avatar" class="user-avatar">
+                            <span class="user-username">{{ list.user.displayName
+                                ||
+                                list.user.username }}</span>
+                        </div>
+                        <div class="user-list-meta">
+                            <span class="user-list-date">{{ list.createdAt |
+                                date:'mediumDate' }}</span>
+                            <span class="user-list-visibility"
+                                [class.public]="list.isPublic">
+                                {{ list.isPublic ? 'Public' : 'Private' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-list-content">
+                        <h2 class="user-list-title">{{ list.name }}</h2>
+                        <p class="user-list-description">{{ list.description |
+                            slice:0:120
+                            }}{{ list.description.length > 120 ? '...' : ''
+                            }}</p>
+                    </div>
+
+                    <div class="user-list-preview">
+                        <div class="user-media-count">{{ list.items.length }}
+                            items</div>
+                        <div class="user-media-posters">
+                            <div class="user-poster-container"
+                                *ngFor="let media of list.items.slice(0, 4)">
+                                <img
+                                    [src]="media.posterUrl || 'assets/default-poster.jpg'"
+                                    alt="{{ media.title }}" class="user-poster">
+                                <div class="user-poster-year">{{ media.year
+                                    }}</div>
+                            </div>
+                            <div class="user-more-posters"
+                                *ngIf="list.items.length > 4">
+                                +{{ list.items.length - 4 }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loading>
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading list details...</p>
+    </div>
+</ng-template>
