@@ -110,7 +110,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         this.userReviews = reviews;
         this.customLists = lists;
         this.recentlyWatched = recentWatched;
-        this.highestRated = highestRated;
+        this.highestRated = highestRated.map(item => item.media);
         this.following = following;
         this.followers = followers;
         this.followingReviews = followingReviews;
@@ -118,7 +118,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         this.filterWatchedItems();
         this.sortReviews();
         this.isLoading = false;
-        console.log("lists", lists);
+        console.log("highest rated", highestRated);
       },
       error: (error) => {
         console.error('Error loading user data:', error);

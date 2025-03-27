@@ -7,18 +7,18 @@
                     [class.active]="activeFilter === 'all'"
                     (click)="filterWatchlist('all')">All</button>
                 <button class="filter-btn"
-                    [class.active]="activeFilter === 'watching'"
-                    (click)="filterWatchlist('watching')">Watching</button>
+                    [class.active]="activeFilter === 'WATCHING'"
+                    (click)="filterWatchlist('WATCHING')">Watching</button>
                 <button class="filter-btn"
-                    [class.active]="activeFilter === 'completed'"
-                    (click)="filterWatchlist('completed')">Completed</button>
+                    [class.active]="activeFilter === 'WATCHED'"
+                    (click)="filterWatchlist('WATCHED')">Completed</button>
                 <button class="filter-btn"
-                    [class.active]="activeFilter === 'plan-to-watch'"
-                    (click)="filterWatchlist('plan-to-watch')">Plan to
+                    [class.active]="activeFilter === 'WANT_TO_WATCH'"
+                    (click)="filterWatchlist('WANT_TO_WATCH')">Plan to
                     Watch</button>
                 <button class="filter-btn"
-                    [class.active]="activeFilter === 'dropped'"
-                    (click)="filterWatchlist('dropped')">Dropped</button>
+                    [class.active]="activeFilter === 'DROPPED'"
+                    (click)="filterWatchlist('DROPPED')">Dropped</button>
             </div>
             <div class="sort-controls">
                 <label for="sort-select">Sort by:</label>
@@ -95,7 +95,7 @@
                             <div class="rating-container">
                                 <span>Your rating:</span>
                                 <div class="star-rating">
-                                    <i *ngFor="let star of [1,2,3,4,5]"
+                                    <i *ngFor="let star of [2,4,6,8,10]"
                                         class="fa"
                                         [ngClass]="star <= item.rating ? 'fa-star' : 'fa-star-o'"
                                         (click)="updateRating(item, star)">

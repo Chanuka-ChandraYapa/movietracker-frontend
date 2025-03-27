@@ -19,6 +19,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   currentUser$: Observable<User | null>;
   currentUser: User | undefined;
   watchlistItems: WatchedItem[] = [];
+  originalWatchlistItems: WatchedItem[] = [];
   filteredWatchlistItems: WatchedItem[] = [];
   isLoading = true;
   activeFilter = 'all';
@@ -86,6 +87,7 @@ export class WatchlistComponent implements OnInit, OnDestroy {
     ).subscribe(
       (items: WatchedItem[]) => {
         this.watchlistItems = items;
+        this.originalWatchlistItems = items;
         this.applyFiltersAndSort();
         this.isLoading = false;
       },
@@ -98,9 +100,11 @@ export class WatchlistComponent implements OnInit, OnDestroy {
   applyFiltersAndSort(): void {
     // Apply filters
     if (this.activeFilter === 'all') {
-      this.filteredWatchlistItems = [...this.watchlistItems];
+      this.filteredWatchlistItems = [...this.originalWatchlistItems];
     } else {
-      this.filteredWatchlistItems = this.watchlistItems.filter(item => item.status === this.activeFilter);
+      console.log('Filtering by:', this.activeFilter);
+      this.filteredWatchlistItems = this.originalWatchlistItems.filter(item => item.status === this.activeFilter);
+      console.log('Filtered items:', this.filteredWatchlistItems);
     }
 
     // Apply sorting

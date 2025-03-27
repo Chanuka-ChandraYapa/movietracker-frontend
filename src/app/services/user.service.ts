@@ -60,15 +60,17 @@ export class UserService {
   getUserRecentlyWatched(id: number): Observable<WatchedItem[]> {
     return this.http.get<{content:WatchedItem[]}>(`${this.apiUrl}/${id}/recently-watched`,{ }).pipe(
           map(response => response.content)
-        );;
+        );
   }
 
   getUserLists(id: number): Observable<CustomList[]> {
     return this.http.get<CustomList[]>(`${this.apiUrl}/${id}/lists`);
   }
 
-  getUserHighestRated(id: number): Observable<Media[]> {
-    return this.http.get<Media[]>(`${this.apiUrl}/${id}/highest-rated`);
+  getUserHighestRated(id: number): Observable<WatchedItem[]> {
+    return this.http.get<{content:WatchedItem[]}>(`${this.apiUrl}/${id}/highest-rated`).pipe(
+      map(response => response.content)
+    );
   }
 
   getUserFollowing(id: number): Observable<User[]> {

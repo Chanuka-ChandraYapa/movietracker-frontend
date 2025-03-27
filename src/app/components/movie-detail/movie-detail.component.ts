@@ -3,13 +3,16 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MediaService } from '../../services/media.service';
 import { AuthService } from '../../services/auth.service';
-import { Media, TvSeason } from '../../models/media.model';
+import { Media, Review, TvSeason } from '../../models/media.model';
 import { User, WatchedItem } from '../../models/user.model';
 import { Observable, forkJoin, of, switchMap, catchError } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { WatchlistService } from '../../services/watchlist.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { MatDialog } from '@angular/material/dialog';
+import { ReviewModalComponent } from '../../layouts/review-modal/review-modal.component';
+import { ReviewService } from '../../services/review.service';
 
 
 enum WatchStatus {
@@ -35,6 +38,7 @@ interface WatchlistDto {
 export class MovieDetailComponent implements OnInit {
 
   currentUser$: Observable<User | null>;
+  currentUser: User | undefined;
   movie: Media | null = null;
   similarMovies: Media[] = [];
   directorMovies: Media[] = [];
@@ -51,6 +55,7 @@ export class MovieDetailComponent implements OnInit {
   activeTab = 'overview';
   selectedSeason: number = 1;
   expandedEpisodes: Set<number> = new Set();
+  reviews: Review[] = [];
   private youtubeApiKey = environment.youtubeApiKey; 
   private apiKey = environment.googleSearchApiKey;
   private cseId = environment.googleCseId;
@@ -61,10 +66,12 @@ export class MovieDetailComponent implements OnInit {
     public router: Router,
     private mediaService: MediaService,
     private authService: AuthService,
+    private reviewService: ReviewService,
     private watchListService: WatchlistService,
     private sanitizer: DomSanitizer,
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.currentUser$ = this.authService.currentUser$;
     this.watchlistForm = this.fb.group({
@@ -77,6 +84,12 @@ export class MovieDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.currentUser$.subscribe(user => {
+      if (user) {
+        this.currentUser=user;  
+        this.loadReviews();
+      }
+    })
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         // Scroll to the top of the page
@@ -139,6 +152,65 @@ export class MovieDetailComponent implements OnInit {
       }
     });
   }
+
+  loadReviews() {
+    if (this.movie?.id) {
+      this.mediaService.getMediaReviews(this.movie.id).subscribe({
+        next: (reviews) => {
+          this.reviews = reviews;
+          console.log(this.reviews)
+        },
+        error: (error) => {
+          console.error('Error loading reviews', error);
+          // Optionally show error message to user
+        }
+      });
+    }
+  }
+
+  openReviewModal(mode: 'create' | 'update' | 'delete', review?: Review) {
+    if (!this.currentUser$) return;
+    this.currentUser$.subscribe(user => {
+      if(user){
+      this.currentUser = user;
+      }
+
+    const dialogRef = this.dialog.open(ReviewModalComponent, {
+      data: {
+        user: user,
+        media: this.movie,
+        review: review,
+        mode: mode
+      },
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh reviews after successful action
+        this.loadReviews();
+      }
+    });
+  })
+  }
+
+  likeReview(reviewId: number) {
+    this.reviewService.likeReview(reviewId).subscribe({
+      next: () => {
+        // Optimistically update the reviews
+        const reviewToUpdate = this.reviews.find(r => r.id === reviewId);
+        if (reviewToUpdate) {
+          reviewToUpdate.isLiked = !reviewToUpdate.isLiked;
+          reviewToUpdate.likes += reviewToUpdate.isLiked ? 1 : -1;
+        }
+      },
+      error: (error) => {
+        console.error('Error liking review', error);
+        // Optionally show error message to user
+      }
+    });
+  }
+
 
   onMediaClick($event: Media) {
     throw new Error('Method not implemented.');
@@ -233,6 +305,28 @@ export class MovieDetailComponent implements OnInit {
   //     }
   //   }
   // }
+
+  updateRating(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseFloat(input.value);
+    this.watchlistForm.get('rating')?.setValue(value);
+  }
+
+  getStarFillStyle(position: number): { width: string } {
+    const rating = this.watchlistForm.get('rating')?.value || 0;
+    
+    if (position <= Math.floor(rating)) {
+      // Fully filled star
+      return { width: '100%' };
+    } else if (position === Math.ceil(rating) && Math.ceil(rating) !== Math.floor(rating)) {
+      // Partially filled star
+      const decimal = rating % 1;
+      return { width: (decimal * 100) + '%' };
+    } else {
+      // Empty star
+      return { width: '0%' };
+    }
+  }
 
   private fetchSimilarMovies(movieId: number): void {
     if (!movieId) {

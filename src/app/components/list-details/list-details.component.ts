@@ -50,6 +50,7 @@ export class ListDetailsComponent implements OnInit {
     this.listService.getList(Number(listId)).subscribe({
       next: (list) => {
         this.customList = list;
+        console.log(list)
         this.isLoading = false;
         this.setHeaderBackground();
         if(this.customList?.user.id){

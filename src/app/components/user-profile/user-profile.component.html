@@ -60,7 +60,7 @@
                         <div class="activity-list"
                             *ngIf="recentlyWatched?.length; else noActivity">
                             <div class="activity-item"
-                                *ngFor="let item of recentlyWatched.splice(0, 5)">
+                                *ngFor="let item of recentlyWatched">
                                 <div class="activity-content">
                                     <span
                                         class="activity-action">{{item.status}}</span>

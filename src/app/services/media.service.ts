@@ -85,7 +85,9 @@ export class MediaService {
   }
 
   getMediaReviews(id: number): Observable<Review[]> {
-    return this.http.get<Review[]>(`${this.apiUrl}/${id}/reviews`);
+    return this.http.get<{content:Review[]}>(`${this.apiUrl}/${id}/reviews`, {}).pipe(
+      map(response=> response.content)
+    );
   }
 
   getMediaAverageRating(id: number): Observable<number> {

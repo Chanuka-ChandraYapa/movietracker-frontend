@@ -144,13 +144,31 @@
           <div class="form-group"
             *ngIf="watchlistForm.get('status')?.value === 'WATCHED'">
             <label for="rating">Rating</label>
-            <div class="rating-stars">
-              <span *ngFor="let star of [1,2,3,4,5,6,7,8,9,10]"
-                (click)="setRating(star)"
-                [class.filled]="star <= (watchlistForm.get('rating')?.value || 0)">★</span>
+
+            <!-- Slider with step of 0.1 from 0 to 10 -->
+            <div class="rating-slider-container">
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="0.1"
+                formControlName="rating"
+                (input)="updateRating($event)"
+                class="rating-slider">
+              <div class="rating-value">{{ (watchlistForm.get('rating')?.value
+                || 0).toFixed(1) }}</div>
             </div>
-            <div class="rating-value">{{ watchlistForm.get('rating')?.value ||
-              'Not rated' }}</div>
+
+            <!-- Stars display that shows filled stars based on rating value -->
+            <div class="rating-stars">
+              <ng-container *ngFor="let star of [1,2,3,4,5,6,7,8,9,10]">
+                <div class="star-container">
+                  <span class="star-background">★</span>
+                  <span class="star-filled"
+                    [ngStyle]="getStarFillStyle(star)">★</span>
+                </div>
+              </ng-container>
+            </div>
           </div>
 
           <div class="form-group"
@@ -197,6 +215,8 @@
           (click)="changeTab('cast')">Cast & Crew</button>
         <button class="tab-btn" [class.active]="activeTab === 'media'"
           (click)="changeTab('media')">Media</button>
+        <button class="tab-btn" [class.active]="activeTab === 'reviews'"
+          (click)="changeTab('reviews')">Reviews</button>
       </div>
 
       <!-- Tab content -->
@@ -254,6 +274,93 @@
                   <span class="detail-label">Added</span>
                   <span class="detail-value" *ngIf="movie.createdAt">{{
                     formatDate(movie.createdAt.toString()) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" *ngIf="activeTab === 'reviews'">
+          <div class="card reviews-card">
+            <div class="card-body">
+              <div class="reviews-header">
+                <h3 class="section-title">Reviews</h3>
+                <button
+                  *ngIf="currentUser$"
+                  class="btn btn-add-review"
+                  (click)="openReviewModal('create')">
+                  Add Review
+                </button>
+              </div>
+
+              <!-- No Reviews Message -->
+              <div *ngIf="!reviews || reviews.length === 0" class="no-reviews">
+                <p>No reviews yet. Be the first to review!</p>
+              </div>
+
+              <!-- Reviews List -->
+              <div *ngIf="reviews && reviews.length > 0" class="reviews-list">
+                <div
+                  *ngFor="let review of reviews"
+                  class="review-item"
+                  [class.user-review]="review.user.id === currentUser?.id">
+
+                  <div class="review-header">
+                    <div class="review-user">
+                      <img
+                        [src]="review.user.avatarUrl || 'assets/images/default-avatar.png'"
+                        alt="{{ review.user.username }}"
+                        class="user-avatar">
+                      <span class="username">{{ review.user.username }}</span>
+                    </div>
+                    <div class="review-meta">
+                      <span class="review-date">
+                        {{ formatDate(review.createdAt) }}
+                      </span>
+                      <span
+                        *ngIf="review.containsSpoilers"
+                        class="spoiler-tag">
+                        Spoiler
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="review-content"
+                    [class.spoiler-content]="review.containsSpoilers">
+                    {{ review.content }}
+                  </div>
+
+                  <div class="review-actions" *ngIf="currentUser">
+                    <div class="review-interactions">
+                      <button
+                        class="btn-like"
+                        [class.liked]="review.isLiked"
+                        (click)="likeReview(review.id)">
+                        <i class="icon-heart"></i>
+                        {{ review.likes || 0 }} Likes
+                      </button>
+                      <button class="btn-comments">
+                        <i class="icon-comment"></i>
+                        {{ review.comments || 0 }} Comments
+                      </button>
+                    </div>
+
+                    <!-- User's own review actions -->
+                    <div
+                      *ngIf="review.user.id === this.currentUser?.id"
+                      class="user-review-actions">
+                      <button
+                        class="btn btn-edit"
+                        (click)="openReviewModal('update', review)">
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-delete"
+                        (click)="openReviewModal('delete', review)">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

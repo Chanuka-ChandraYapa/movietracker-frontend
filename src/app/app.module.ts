@@ -27,6 +27,7 @@ import { AdvancedSearchComponent } from './components/advanced-search/advanced-s
 import { MediaSearchComponent } from './components/media-search/media-search.component';
 import { ListDetailsComponent } from './components/list-details/list-details.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ReviewModalComponent } from './layouts/review-modal/review-modal.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MovieCardComponent,
     AdvancedSearchComponent,
     MediaSearchComponent,
-    ListDetailsComponent
+    ListDetailsComponent,
+    ReviewModalComponent
   ],
   imports: [
     AppRoutingModule,
