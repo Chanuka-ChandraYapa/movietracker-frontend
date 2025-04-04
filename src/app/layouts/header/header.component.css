@@ -26,6 +26,12 @@
     text-decoration: none;
   }
 
+  .logo-image {
+    height: 40px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+
   .logo-text {
     font-size: 1.5rem;
     font-weight: 700;
@@ -73,8 +79,8 @@
 }
 
 .search-container {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
   position: relative;
   margin-right: 1rem;
 
