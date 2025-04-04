@@ -60,13 +60,13 @@ export interface Media {
   lastAirDate?: Date;
   inProduction?: boolean;
   seasons?: TvSeason[];
-
+  director?: string;
 }
 
 export interface Movie extends Media {
   runtime: number;
   // releaseDate: string;
-  director: string;
+  // director: string;
 }
 
 export interface TvSeries extends Media {
@@ -82,6 +82,11 @@ export interface TvSeries extends Media {
     id: number;
     name: string;
     media: Media[];
+  }
+
+  export interface Tag {
+    id?: number;
+    name: string;
   }
   
   export interface Review {

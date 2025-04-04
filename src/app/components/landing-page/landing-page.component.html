@@ -1,0 +1,229 @@
+<div class="prometheus-app">
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <h1>Prometheus</h1>
+                <span class="tagline">Track your cinematic journey</span>
+            </div>
+
+            <nav [class.open]="isMenuOpen">
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#">Discover</a></li>
+                    <li><a href="#">Lists</a></li>
+                    <li><a href="#">Journal</a></li>
+                    <li><a href="#">Members</a></li>
+                </ul>
+            </nav>
+
+            <div class="auth-buttons">
+                <button class="btn btn-login">Log In</button>
+                <button class="btn btn-signup">Sign Up</button>
+            </div>
+
+            <button class="menu-toggle" (click)="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Your Personal Film Journey</h2>
+                <p>Track, rate, and discover films. Join a community of
+                    passionate cinephiles.</p>
+                <button class="btn btn-cta">Start Tracking</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Movies -->
+    <section class="movie-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Films</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+
+            <div class="movie-grid">
+                <div class="movie-card" *ngFor="let movie of featuredMovies">
+                    <div class="movie-poster">
+                        <img [src]="movie.poster" [alt]="movie.title">
+                        <div class="movie-overlay">
+                            <div class="rating">
+                                <span
+                                    *ngFor="let star of getRatingStars(movie.rating)"
+                                    class="star {{star}}">★</span>
+                            </div>
+                            <button class="btn btn-add">+ Watchlist</button>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3>{{movie.title}}</h3>
+                        <p>{{movie.year}} • {{movie.director}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Now -->
+    <section class="movie-section trending">
+        <div class="container">
+            <div class="section-header">
+                <h2>Trending Now</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+
+            <div class="movie-grid">
+                <div class="movie-card" *ngFor="let movie of trendingMovies">
+                    <div class="movie-poster">
+                        <img [src]="movie.poster" [alt]="movie.title">
+                        <div class="movie-overlay">
+                            <div class="rating">
+                                <span
+                                    *ngFor="let star of getRatingStars(movie.rating)"
+                                    class="star {{star}}">★</span>
+                            </div>
+                            <button class="btn btn-add">+ Watchlist</button>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3>{{movie.title}}</h3>
+                        <p>{{movie.year}} • {{movie.director}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recently Reviewed -->
+    <section class="movie-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Recently Reviewed</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+
+            <div class="movie-grid">
+                <div class="movie-card" *ngFor="let movie of recentlyReviewed">
+                    <div class="movie-poster">
+                        <img [src]="movie.poster" [alt]="movie.title">
+                        <div class="movie-overlay">
+                            <div class="rating">
+                                <span
+                                    *ngFor="let star of getRatingStars(movie.rating)"
+                                    class="star {{star}}">★</span>
+                            </div>
+                            <button class="btn btn-add">+ Watchlist</button>
+                        </div>
+                    </div>
+                    <div class="movie-info">
+                        <h3>{{movie.title}}</h3>
+                        <p>{{movie.year}} • {{movie.director}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose Prometheus</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">📋</div>
+                    <h3>Track Your Films</h3>
+                    <p>Keep a record of every film you've watched and want to
+                        watch.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⭐</div>
+                    <h3>Rate & Review</h3>
+                    <p>Share your thoughts and see what others think about your
+                        favorite films.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Discover New Films</h3>
+                    <p>Get personalized recommendations based on your taste.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">👥</div>
+                    <h3>Join the Community</h3>
+                    <p>Connect with fellow film enthusiasts and share your
+                        passion.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to start your cinematic journey?</h2>
+            <p>Join thousands of film lovers tracking their movie
+                experiences.</p>
+            <button class="btn btn-cta">Create Free Account</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>Prometheus</h2>
+                    <p>Your personal film journey</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h3>Explore</h3>
+                        <ul>
+                            <li><a href="#">Popular Films</a></li>
+                            <li><a href="#">New Releases</a></li>
+                            <li><a href="#">Top Rated</a></li>
+                            <li><a href="#">Coming Soon</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="link-group">
+                        <h3>Community</h3>
+                        <ul>
+                            <li><a href="#">Members</a></li>
+                            <li><a href="#">Reviews</a></li>
+                            <li><a href="#">Lists</a></li>
+                            <li><a href="#">Forums</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="link-group">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Prometheus. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">Twitter</a>
+                    <a href="#" class="social-link">Instagram</a>
+                    <a href="#" class="social-link">Facebook</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>

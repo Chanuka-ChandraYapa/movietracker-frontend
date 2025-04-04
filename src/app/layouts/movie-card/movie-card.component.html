@@ -15,7 +15,10 @@
     </button>
 
     <div class="slider-container" #sliderContainer
-      *ngIf="displayType === 'slider'">
+      *ngIf="displayType === 'slider'"
+      (touchstart)="onTouchStart($event)"
+      (touchmove)="onTouchMove($event)"
+      (touchend)="onTouchEnd()">
       <div class="media-card" *ngFor="let media of mediaItems">
         <div class="poster">
           <a [routerLink]="[baseRoute, media.id]" (click)="onMediaClick(media)">

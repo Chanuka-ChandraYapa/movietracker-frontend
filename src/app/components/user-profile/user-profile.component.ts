@@ -105,20 +105,21 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         followers,
         followingReviews
       ]) => {
+        console.log("dgagh")
         this.userStats = stats;
         this.watchedItems = watchlist;
         this.userReviews = reviews;
         this.customLists = lists;
-        this.recentlyWatched = recentWatched;
+        this.recentlyWatched = recentWatched.slice(0,5);
         this.highestRated = highestRated.map(item => item.media);
         this.following = following;
         this.followers = followers;
         this.followingReviews = followingReviews;
-        
+        console.log("highest rated", this.watchedItems);
         this.filterWatchedItems();
         this.sortReviews();
         this.isLoading = false;
-        console.log("highest rated", highestRated);
+        
       },
       error: (error) => {
         console.error('Error loading user data:', error);
@@ -233,7 +234,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     
     let filtered = this.watchedItems.map(item => ({
       ...item.media,
-       mediaType: ((item.media.numberOfSeasons ?? 0) > 0 ? 'tv' : 'movie') as 'tv' | 'movie'
+       mediaType: ((item.media?.numberOfSeasons ?? 0) > 0 ? 'tv' : 'movie') as 'tv' | 'movie'
       }));
     
     if (this.watchedFilter === 'movies') {
@@ -413,6 +414,31 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   
   createNewList(): void {
     this.router.navigate(['/lists/new']);
+  }
+
+  formatWatchTime(minutes: number): string {
+    if (isNaN(minutes)) return '0 minutes';
+    
+    const days = Math.floor(minutes / 1440); // 1440 minutes in a day (24*60)
+    const remainingAfterDays = minutes % 1440;
+    const hours = Math.floor(remainingAfterDays / 60);
+    const mins = remainingAfterDays % 60;
+  
+    const parts = [];
+    
+    if (days > 0) {
+      parts.push(`${days} day${days > 1 ? 's' : ''} `);
+    }
+    
+    if (hours > 0) {
+      parts.push(`${hours} hour${hours > 1 ? 's' : ''} `);
+    }
+    
+    if (mins > 0 || parts.length === 0) {
+      parts.push(`${mins} minute${mins > 1 ? 's' : ''}`);
+    }
+  
+    return parts.join(' ');
   }
 }
 

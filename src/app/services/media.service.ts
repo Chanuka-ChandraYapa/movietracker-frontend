@@ -1,11 +1,53 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { Media, Review, Movie, TvSeries } from '../models/media.model';
+import { Media, Review, Movie, TvSeries, Tag } from '../models/media.model';
 import { WatchedItem } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
+import { response } from 'express';
 
+export interface SearchParams {
+  query: string;
+  type: string;
+  yearFrom: number | null;
+  yearTo: number | null;
+  genres: number[];
+  minRating: number;
+  sortBy: string;
+  sortDirection: string;
+  contentRating: string;
+  knownFor: string;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -14,60 +56,12 @@ export class MediaService {
     throw new Error('Method not implemented.');
   }
   getMovieGenres(): Observable<{ id: number, name: string }[]> {
-    const dummyMovieGenres = [
-      { id: 1, name: 'Action' },
-      { id: 2, name: 'Comedy' },
-      { id: 3, name: 'Drama' },
-      { id: 4, name: 'Horror' },
-      { id: 5, name: 'Sci-Fi' }
-    ];
-    return of(dummyMovieGenres);
+    return this.http.get<any>(`${this.apiUrl}/genre`);
   }
   getTvGenres(): Observable<{ id: number, name: string }[]> {
-    const dummyTvGenres = [
-      { id: 1, name: 'Documentary' },
-      { id: 2, name: 'Reality' },
-      { id: 3, name: 'Fantasy' },
-      { id: 4, name: 'Thriller' },
-      { id: 5, name: 'Animation' }
-    ];
-    return of(dummyTvGenres);
+    return this.http.get<any>(`${this.apiUrl}/genre`);
   }
-  searchAll(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
-    const dummyMovies = [
-      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
-      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
-    ];
-    return of(dummyMovies);
-  }
-  searchPeople(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
-    const dummyMovies = [
-      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
-      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
-    ];
-    return of(dummyMovies);
-  }
-  searchMoviesWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]> {
-    const dummyMovies = [
-      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
-      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
-    ];
-    return of(dummyMovies);
-  }
-  searchTvSeriesWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
-    const dummyMovies = [
-      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
-      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
-    ];
-    return of(dummyMovies);
-  }
-  searchPeopleWithParams(searchParams: { query: string; type: string; yearFrom: number | null; yearTo: number | null; genres: number[]; minRating: number; sortBy: string; sortDirection: string; contentRating: string; knownFor: string; }): Observable<any[]>  {
-    const dummyMovies = [
-      { id: 1, title: 'Mock Movie 1', genre_ids: [1, 2], vote_average: 7.5 },
-      { id: 2, title: 'Mock Movie 2', genre_ids: [3, 4], vote_average: 8.0 }
-    ];
-    return of(dummyMovies);
-  }
+  
   private apiUrl = `${environment.apiUrl}/api/media`;
   private movieApiUrl = `${environment.apiUrl}/api/movies`;
   private tvApiUrl = `${environment.apiUrl}/api/tv`;
@@ -102,6 +96,80 @@ export class MediaService {
     );
   }
 
+  searchAll(
+    searchParams: SearchParams,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'title',
+    sortDirection: string = 'asc'
+  ): Observable<PageResponse<any>> {
+    let params = this.buildSearchParams(searchParams, page, size, sortBy, sortDirection);
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/search/all`, { params });
+  }
+
+  searchMoviesWithParams(
+    searchParams: SearchParams,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'title',
+    sortDirection: string = 'asc'
+  ): Observable<PageResponse<any>> {
+    let params = this.buildSearchParams(searchParams, page, size, sortBy, sortDirection);
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/search/movies`, { params });
+  }
+
+  searchTvSeriesWithParams(
+    searchParams: SearchParams,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'title',
+    sortDirection: string = 'asc'
+  ): Observable<PageResponse<any>> {
+    let params = this.buildSearchParams(searchParams, page, size, sortBy, sortDirection);
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/search/tv`, { params });
+  }
+
+  searchPeople(
+    searchParams: SearchParams,
+    page: number = 0,
+    size: number = 10,
+    sortBy: string = 'name',
+    sortDirection: string = 'asc'
+  ): Observable<PageResponse<any>> {
+    let params = this.buildSearchParams(searchParams, page, size, sortBy, sortDirection);
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/search/people`, { params });
+  }
+
+  private buildSearchParams(
+    searchParams: SearchParams,
+    page: number,
+    size: number,
+    sortBy: string,
+    sortDirection: string
+  ): HttpParams {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDirection', sortDirection);
+
+    // Add search parameters as needed
+    if (searchParams.query) params = params.set('query', searchParams.query);
+    if (searchParams.type) params = params.set('type', searchParams.type);
+    if (searchParams.yearFrom) params = params.set('yearFrom', searchParams.yearFrom.toString());
+    if (searchParams.yearTo) params = params.set('yearTo', searchParams.yearTo.toString());
+    if (searchParams.genres && searchParams.genres.length > 0) {
+      searchParams.genres.forEach(genre => {
+        params = params.append('genres', genre.toString());
+      });
+    }
+    if (searchParams.minRating) params = params.set('minRating', searchParams.minRating.toString());
+    if (searchParams.contentRating) params = params.set('contentRating', searchParams.contentRating);
+    if (searchParams.knownFor) params = params.set('knownFor', searchParams.knownFor);
+
+    return params;
+  }
+
   getMediaByGenre(genre: string): Observable<Media[]> {
     console.log(genre);
     const body = { };
@@ -119,7 +187,9 @@ export class MediaService {
 
   searchMovies(query: string): Observable<Movie[]> {
     const params = new HttpParams().set('query', query);
-    return this.http.get<Movie[]>(`${this.movieApiUrl}/search`, { params });
+    return this.http.get<{content: Movie[]}>(`${this.movieApiUrl}/search`, { params }).pipe(
+      map(response => response.content)
+    );
   }
 
   createTvSeries(tvSeries: Partial<TvSeries>): Observable<TvSeries> {
@@ -210,5 +280,38 @@ export class MediaService {
         return of(null); // or any other fallback observable
       })
     );
+  }
+  getMovieTags(movieId: number): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.apiUrl}/${movieId}/tags`);
+  }
+  
+  /**
+   * Get all available tags in the system
+   */
+  getAllTags(): Observable<Tag[]> {
+    return this.http.get<Tag[]>(`${this.apiUrl}/tags`);
+  }
+  
+  /**
+   * Add a tag to a movie
+   */
+  addTagToMovie(movieId: number, tag: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${movieId}/tags`, [tag]);
+  }
+  
+  /**
+   * Remove a tag from a movie
+   */
+  removeTagFromMovie(movieId: number, tag: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/movies/${movieId}/tags/${encodeURIComponent(tag)}`);
+  }
+  
+  /**
+   * Search for movies by tag
+   */
+  getMoviesByTag(tag: string, page: number = 1): Observable<any> {
+    return this.http.get(`${this.apiUrl}/tags/${encodeURIComponent(tag)}/movies`, {
+      params: { page: page.toString() }
+    });
   }
 }

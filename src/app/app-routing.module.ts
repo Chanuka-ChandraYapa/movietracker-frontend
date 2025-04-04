@@ -14,9 +14,12 @@ import { SearchResultsComponent } from './components/search-results/search-resul
 import { AdvancedSearchComponent } from './components/advanced-search/advanced-search.component';
 import { MediaSearchComponent } from './components/media-search/media-search.component';
 import { ListDetailsComponent } from './components/list-details/list-details.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { DiscoverComponent } from './components/discover/discover.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'landing', component: LandingPageComponent },
   { path: 'movies', component: MovieListComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
@@ -31,6 +34,7 @@ const routes: Routes = [
   { path: 'advanced-search', component: AdvancedSearchComponent },
   { path: 'media-search', component: MediaSearchComponent },
   { path: 'profile/:id', component: UserProfileComponent },
+  { path: 'browse/films', component: DiscoverComponent },
   { path: '**', redirectTo: '' } // Redirect to home for unknown routes
 ];
 

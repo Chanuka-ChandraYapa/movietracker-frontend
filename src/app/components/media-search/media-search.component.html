@@ -171,3 +171,11 @@
         </div>
     </div>
 </div>
+
+<div class="searched-movies" *ngIf="searchResults">
+    <h3 class="section-title">Searched Results</h3>
+    <app-movie-card
+        [mediaItems]="searchResults"
+        displayType="grid">
+    </app-movie-card>
+</div>

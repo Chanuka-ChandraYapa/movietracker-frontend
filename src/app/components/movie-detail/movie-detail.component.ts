@@ -3,7 +3,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MediaService } from '../../services/media.service';
 import { AuthService } from '../../services/auth.service';
-import { Media, Review, TvSeason } from '../../models/media.model';
+import { Media, Review, Tag, TvSeason } from '../../models/media.model';
 import { User, WatchedItem } from '../../models/user.model';
 import { Observable, forkJoin, of, switchMap, catchError } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -56,6 +56,11 @@ export class MovieDetailComponent implements OnInit {
   selectedSeason: number = 1;
   expandedEpisodes: Set<number> = new Set();
   reviews: Review[] = [];
+  movieTags: Tag[] = [];
+  availableTags: Tag[] = [];
+  newTag: string = '';
+  isAddingTag: boolean = false;
+  tagSuggestions: Tag[] = [];
   private youtubeApiKey = environment.youtubeApiKey; 
   private apiKey = environment.googleSearchApiKey;
   private cseId = environment.googleCseId;
@@ -86,8 +91,7 @@ export class MovieDetailComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser$.subscribe(user => {
       if (user) {
-        this.currentUser=user;  
-        this.loadReviews();
+        this.currentUser=user;
       }
     })
     this.router.events.subscribe((event) => {
@@ -140,6 +144,8 @@ export class MovieDetailComponent implements OnInit {
         this.trailerLoaded = false;
         this.processMovieData(result.movieDetails);
         this.processCastAndCrew(result.movieDetails);
+        this.loadReviews();
+        this.loadMovieTags();
         // this.processVideoData(result.videos);
         this.fetchSimilarMovies(result.movieDetails.id);
         this.fetchMoviesFromDirector();
@@ -375,14 +381,14 @@ export class MovieDetailComponent implements OnInit {
         );
         
         // Get user's rating for this movie
-        this.mediaService.getUserRating(user.id, movieId).subscribe(
-          rating => {
-            this.userRating = rating || 0;
-          },
-          error => {
-            console.error('Error getting user rating:', error);
-          }
-        );
+        // this.mediaService.getUserRating(user.id, movieId).subscribe(
+        //   rating => {
+        //     this.userRating = rating || 0;
+        //   },
+        //   error => {
+        //     console.error('Error getting user rating:', error);
+        //   }
+        // );
       }
     });
   }
@@ -634,5 +640,89 @@ export class MovieDetailComponent implements OnInit {
   
   isEpisodeExpanded(episodeId: number): boolean {
     return this.expandedEpisodes.has(episodeId);
+  }
+
+  loadMovieTags(): void {
+    if (this.movie && this.movie.id) {
+      this.mediaService.getMovieTags(this.movie.id).subscribe({
+        next: (tags) => {
+          this.movieTags = tags;
+        },
+        error: (error) => {
+          console.error('Error loading tags:', error);
+        }
+      });
+    }
+  }
+
+  getAllTags(): void {
+    this.mediaService.getAllTags().subscribe({
+      next: (tags) => {
+        this.availableTags = tags;
+      },
+      error: (error) => {
+        console.error('Error loading available tags:', error);
+      }
+    });
+  }
+
+  showTagInput(): void {
+    this.isAddingTag = true;
+    this.getAllTags();
+  }
+
+  hideTagInput(): void {
+    this.isAddingTag = false;
+    this.newTag = '';
+    this.tagSuggestions = [];
+  }
+
+  addTag(): void {
+    if (!this.newTag.trim()) return;
+
+    if (this.movie && this.movie.id) {
+      this.mediaService.addTagToMovie(this.movie.id, this.newTag).subscribe({
+        next: () => {
+          const newTagObject: Tag = { name: this.newTag.trim() };
+          if (!this.movieTags.some(tag => tag.name === newTagObject.name)) {
+            this.movieTags.push(newTagObject);
+          }
+          this.newTag = '';
+          this.tagSuggestions = [];
+        },
+        error: (error) => {
+          console.error('Error adding tag:', error);
+        }
+      });
+    }
+  }
+
+  removeTag(tag: string): void {
+    if (this.movie && this.movie.id) {
+      this.mediaService.removeTagFromMovie(this.movie.id, tag).subscribe({
+        next: () => {
+          this.movieTags = this.movieTags.filter(t => t.name !== tag);
+        },
+        error: (error) => {
+          console.error('Error removing tag:', error);
+        }
+      });
+    }
+  }
+
+  searchTags(): void {
+    if (!this.newTag.trim()) {
+      this.tagSuggestions = [];
+      return;
+    }
+
+    this.tagSuggestions = this.availableTags.filter(tag => 
+      tag.name.toLowerCase().includes(this.newTag.toLowerCase())
+    ).slice(0, 5); // Limit to 5 suggestions
+  }
+
+  selectTag(tag: string): void {
+    this.newTag = tag;
+    this.tagSuggestions = [];
   }
 }

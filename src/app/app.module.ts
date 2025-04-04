@@ -28,6 +28,8 @@ import { MediaSearchComponent } from './components/media-search/media-search.com
 import { ListDetailsComponent } from './components/list-details/list-details.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ReviewModalComponent } from './layouts/review-modal/review-modal.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { DiscoverComponent } from './components/discover/discover.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +50,9 @@ import { ReviewModalComponent } from './layouts/review-modal/review-modal.compon
     AdvancedSearchComponent,
     MediaSearchComponent,
     ListDetailsComponent,
-    ReviewModalComponent
+    ReviewModalComponent,
+    LandingPageComponent,
+    DiscoverComponent
   ],
   imports: [
     AppRoutingModule,

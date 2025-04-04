@@ -1,0 +1,335 @@
+<div class="discover-page">
+    <!-- Hero section with backdrop image and search -->
+    <section class="hero-section">
+        <div class="backdrop-wrapper">
+            <div class="backdrop-image"
+                [style.background-image]="movieOfTheDay?.backdropUrl ? 'url(' + movieOfTheDay?.backdropUrl + ')' : 'url(' + movieOfTheDay?.posterUrl + ')'">
+                <div class="backdrop-overlay"></div>
+            </div>
+        </div>
+        <div class="hero-content">
+            <h1>Discover New Cinematic Experiences</h1>
+
+            <div class="search-box">
+                <div class="search-input-wrapper">
+                    <input type="text" [(ngModel)]="searchQuery"
+                        placeholder="Search for movies or TV shows..."
+                        (keyup.enter)="searchMovies()">
+                    <button class="search-button" (click)="searchMovies()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="search-options">
+                    <button class="option-button"
+                        (click)="showAdvancedSearch = !showAdvancedSearch">
+                        Advanced Search
+                    </button>
+                    <button class="option-button"
+                        (click)="showMoodPicker = !showMoodPicker">
+                        Find by Mood
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Search Panel -->
+            <div class="advanced-search-panel" *ngIf="showAdvancedSearch">
+                <textarea [(ngModel)]="advancedSearchPrompt"
+                    placeholder="Describe what you're looking for... (e.g., 'Space movies with female protagonists from the 90s')"></textarea>
+                <button class="search-button" (click)="advancedSearch()">Find
+                    Movies</button>
+            </div>
+
+            <!-- Mood Picker -->
+            <div class="mood-picker" *ngIf="showMoodPicker">
+                <h3>What are you in the mood for?</h3>
+                <div class="mood-grid">
+                    <div class="mood-card" *ngFor="let mood of moods"
+                        (click)="selectMood(mood.name)">
+                        <div class="mood-image"
+                            [style.background-image]="'url(' + mood.posterUrl + ')'"></div>
+                        <span class="mood-name">{{mood.name}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick genre navigation -->
+            <div class="quick-genres">
+                <span class="quick-genre-label">Quick filters:</span>
+                <div class="genre-tags">
+                    <span class="genre-tag"
+                        *ngFor="let genre of allGenres.slice(0, 8)"
+                        (click)="toggleGenreFilter(genre.id)">
+                        {{genre.name}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Section (shown only when search performed) -->
+    <section class="search-results-section" *ngIf="searchResults.length > 0">
+        <div class="section-heading">
+            <h2>Search Results</h2>
+            <button class="clear-button"
+                (click)="filteredSearchResults = []">Clear
+                Results</button>
+        </div>
+        <app-movie-card
+            [mediaItems]="filteredSearchResults"
+            [isLoading]="isLoading"
+            displayType="grid"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <section class="search-results-section" *ngIf="genreMedia.length > 0">
+        <div class="section-heading">
+            <h2>Explore {{selectedGenre}}</h2>
+        </div>
+        <app-movie-card
+            [mediaItems]="genreMedia"
+            [isLoading]="isLoading"
+            displayType="slider"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Movie of the Day Section -->
+    <section class="movie-of-day-section" *ngIf="movieOfTheDay">
+        <div class="section-heading">
+            <h2>Movie of the Day</h2>
+        </div>
+        <div class="movie-of-day-content">
+            <div class="movie-poster">
+                <img [src]="movieOfTheDay.posterUrl"
+                    [alt]="movieOfTheDay.title">
+                <div class="poster-overlay">
+                    <button class="action-button"
+                        (click)="onAddToWatchlist(movieOfTheDay)">
+                        <i class="fa fa-plus"></i> Watchlist
+                    </button>
+                    <button class="action-button"
+                        (click)="onMediaClick(movieOfTheDay)">
+                        <i class="fa fa-info-circle"></i> Details
+                    </button>
+                </div>
+            </div>
+            <div class="movie-details">
+                <h3>{{movieOfTheDay.title}} <span
+                        class="year">({{movieOfTheDay.year}})</span></h3>
+                <div class="movie-meta">
+                    <span class="meta-item">{{movieOfTheDay.runtime}} min</span>
+                    <span class="meta-item"
+                        *ngFor="let genre of movieOfTheDay.genres">{{genre.name}}</span>
+                    <span class="meta-item rating"
+                        *ngIf="movieOfTheDay.averageRating">
+                        <i class="fa fa-star"></i> {{movieOfTheDay.averageRating
+                        | number:'1.1-1'}}
+                    </span>
+                </div>
+                <p class="movie-overview">{{movieOfTheDay.overview}}</p>
+                <div class="movie-credits"
+                    *ngIf="movieOfTheDay.writer || movieOfTheDay.actors">
+                    <p *ngIf="movieOfTheDay.writer"><strong>Director:</strong>
+                        {{movieOfTheDay.writer}}</p>
+                    <p
+                        *ngIf="movieOfTheDay.actors && movieOfTheDay.actors.length > 0">
+                        <strong>Starring:</strong>
+                        <!-- {{movieOfTheDay.actors.slice(0, 3).join(', ')}} -->
+                        {{movieActors}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IMDB Top 10 -->
+    <section class="imdb-top-section" id="imdb-top">
+        <div class="section-heading">
+            <h2>Popular Now</h2>
+            <div class="time-filters">
+                <button [class.active]="timeWindow.value === 'week'"
+                    (click)="changeTimeWindow('week')">This Week</button>
+                <button [class.active]="timeWindow.value === 'month'"
+                    (click)="changeTimeWindow('month')">This Month</button>
+                <button [class.active]="timeWindow.value === 'year'"
+                    (click)="changeTimeWindow('year')">This Year</button>
+            </div>
+        </div>
+        <app-movie-card
+            [mediaItems]="imdbtop10"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section class="recommendations-section" *ngIf="recommendedMedia.length > 0"
+        id="recommendations">
+        <div class="section-heading">
+            <h2>Recommended For You</h2>
+            <span class="subtitle">Based on your watching history</span>
+        </div>
+        <app-movie-card
+            [mediaItems]="recommendedMedia"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Recently Watched Genre Section -->
+    <section class="genre-recommendation-section"
+        *ngIf="recentlyWatchedGenreMedia.length > 0" id="genre-recommendations">
+        <div class="section-heading">
+            <h2>More {{selectedGenreName}} Movies</h2>
+            <span class="subtitle">Because you've been watching this
+                genre</span>
+        </div>
+        <app-movie-card
+            [mediaItems]="recentlyWatchedGenreMedia"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Friends Activity Section -->
+    <section class="friends-activity-section" *ngIf="friendsActivity.length > 0"
+        id="friends-activity">
+        <div class="section-heading">
+            <h2>Friends' Recent Activity</h2>
+            <span class="subtitle">See what your friends are watching</span>
+        </div>
+        <div class="activity-timeline">
+            <div class="activity-item" *ngFor="let activity of friendsActivity">
+                <div class="activity-user">
+                    <img
+                        [src]="activity.user.avatarUrl || 'assets/default-avatar.png'"
+                        alt="User avatar">
+                    <span>{{activity.user.username}}</span>
+                </div>
+                <div class="activity-action">
+                    <span>watched</span>
+                </div>
+                <div class="activity-media"
+                    (click)="onMediaClick(activity.media)">
+                    <img [src]="activity.media.posterUrl"
+                        [alt]="activity.media.title">
+                    <div
+                        class="activity-media-title">{{activity.media.title}}</div>
+                </div>
+                <div class="activity-time">
+                    <span>{{activity.updatedAt| date:'MMM d'}}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Director Showcase Section -->
+    <section class="director-showcase-section"
+        *ngIf="directorShowcase.length > 0" id="director-showcase">
+        <div class="section-heading">
+            <h2>Director Showcase</h2>
+            <span class="subtitle">More from directors you love</span>
+        </div>
+        <app-movie-card
+            [mediaItems]="directorShowcase"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Similar to Favorites Section -->
+    <section class="similar-section" *ngIf="similarToFavorites.length > 0"
+        id="similar-favorites">
+        <div class="section-heading">
+            <h2>Similar to Your Favorites</h2>
+            <span class="subtitle">You might enjoy these</span>
+        </div>
+        <app-movie-card
+            [mediaItems]="similarToFavorites"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Featured Tag Section -->
+    <section class="tag-section" *ngIf="moviesByTag.length > 0"
+        id="featured-tag">
+        <div class="section-heading">
+            <h2>Featured: {{featuredTag}}</h2>
+            <span class="subtitle">Explore this theme</span>
+        </div>
+        <app-movie-card
+            [mediaItems]="moviesByTag"
+            [isLoading]="isLoading"
+            displayType="slider"
+            [cardsToSlide]="4"
+            (addToWatchlist)="onAddToWatchlist($event)"
+            (likeMedia)="onLikeMedia($event)"
+            (mediaClick)="onMediaClick($event)">
+        </app-movie-card>
+    </section>
+
+    <!-- Navigation Sidebar -->
+    <aside class="navigation-sidebar">
+        <div class="nav-item" (click)="scrollToSection('imdb-top')">
+            <i class="fa fa-trophy"></i>
+            <span>Top Rated</span>
+        </div>
+        <div class="nav-item" *ngIf="recommendedMedia.length > 0"
+            (click)="scrollToSection('recommendations')">
+            <i class="fa fa-thumbs-up"></i>
+            <span>For You</span>
+        </div>
+        <div class="nav-item" *ngIf="recentlyWatchedGenreMedia.length > 0"
+            (click)="scrollToSection('genre-recommendations')">
+            <i class="fa fa-film"></i>
+            <span>{{selectedGenreName}}</span>
+        </div>
+        <div class="nav-item" *ngIf="friendsActivity.length > 0"
+            (click)="scrollToSection('friends-activity')">
+            <i class="fa fa-users"></i>
+            <span>Friends</span>
+        </div>
+        <div class="nav-item" *ngIf="directorShowcase.length > 0"
+            (click)="scrollToSection('director-showcase')">
+            <i class="fa fa-video-camera"></i>
+            <span>Directors</span>
+        </div>
+        <div class="nav-item" *ngIf="similarToFavorites.length > 0"
+            (click)="scrollToSection('similar-favorites')">
+            <i class="fa fa-heart"></i>
+            <span>Similar</span>
+        </div>
+        <div class="nav-item" *ngIf="moviesByTag.length > 0"
+            (click)="scrollToSection('featured-tag')">
+            <i class="fa fa-tag"></i>
+            <span>{{featuredTag}}</span>
+        </div>
+    </aside>
+</div>

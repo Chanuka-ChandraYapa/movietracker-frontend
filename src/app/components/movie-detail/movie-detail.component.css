@@ -67,6 +67,154 @@
   margin-top: var(--spacing-md);
 }
 
+/* Tags Styling - Add to your movie-detail.component.css */
+
+.tags-container {
+  margin-top: var(--spacing-lg);
+}
+
+.tags-heading {
+  font-size: 1.2rem;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-secondary);
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.tag-item {
+  background-color: var(--color-background-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.tag-item:hover {
+  background-color: var(--color-background-hover);
+}
+
+.tag-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.tag-remove-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  margin-left: var(--spacing-xs);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.tag-remove-btn:hover {
+  color: var(--color-danger);
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+.no-tags {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin-bottom: var(--spacing-md);
+}
+
+.add-tag-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: 1px dashed var(--color-text-tertiary);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-tertiary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-tag-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.add-tag-btn .icon {
+  margin-right: var(--spacing-xs);
+}
+
+.tag-input-container {
+  position: relative;
+  margin-top: var(--spacing-sm);
+}
+
+.tag-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-background-light);
+  color: var(--color-text-primary);
+}
+
+.tag-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-background-light);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.tag-suggestion-item {
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tag-suggestion-item:hover {
+  background-color: var(--color-background-hover);
+}
+
+.tag-input-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.tag-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-weight: 500;
+  border: none;
+}
+
+.tag-btn.add {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.tag-btn.cancel {
+  background-color: var(--color-background-light);
+  color: var(--color-text-secondary);
+}
+
 .action-btn {
   width: 100%;
   display: flex;

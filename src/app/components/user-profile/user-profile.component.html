@@ -84,7 +84,7 @@
                         </div>
                         <div *ngIf="highestRated?.length; else noHighestRated">
                             <app-movie-card
-                                [mediaItems]="highestRated"
+                                [mediaItems]="highestRated.slice(0, 5)"
                                 [isLoading]="isLoading"
                                 displayType="grid"
                                 (mediaClick)="onMediaClick($event)">
@@ -306,9 +306,9 @@
                         <div class="stat-label">Want to Watch</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">{{ userStats.totalRuntimeMinutes
+                        <div class="stat-value">{{ userStats.mostWatchedGenre
                             }}</div>
-                        <div class="stat-label">Watched Time</div>
+                        <div class="stat-label">Most Watched Genre</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value">{{ userStats.averageRating |
@@ -316,9 +316,10 @@
                         <div class="stat-label">Avg. Rating</div>
                     </div>
                     <div class="stat-card wide">
-                        <div class="stat-value">{{ userStats.mostWatchedGenre
+                        <div class="stat-value">{{
+                            formatWatchTime(userStats.totalRuntimeMinutes)
                             }}</div>
-                        <div class="stat-label">Most Watched Genre</div>
+                        <div class="stat-label">Watched Time</div>
                     </div>
                 </div>
                 <ng-template #loadingStats>

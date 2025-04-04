@@ -92,6 +92,54 @@
             <span class="award-icon">🏆</span>
             <span class="award-text">{{ movie.awards }}</span>
           </div>
+          <div class="tags-container">
+            <h3 class="tags-heading">Tags</h3>
+
+            <div class="tags-list" *ngIf="movieTags.length > 0">
+              <span *ngFor="let tag of movieTags" class="tag-item">
+                <a [routerLink]="['/tag', tag]" class="tag-link">{{ tag.name
+                  }}</a>
+                <button class="tag-remove-btn" (click)="removeTag(tag.name)"
+                  *ngIf="currentUser$ | async" title="Remove tag">×</button>
+              </span>
+            </div>
+
+            <div class="no-tags" *ngIf="movieTags.length === 0">
+              No tags yet
+            </div>
+
+            <div class="add-tag-container" *ngIf="currentUser$ | async">
+              <button *ngIf="!isAddingTag" class="add-tag-btn"
+                (click)="showTagInput()">
+                <span class="icon">+</span>
+                <span class="label">Add Tag</span>
+              </button>
+
+              <div *ngIf="isAddingTag" class="tag-input-container">
+                <input
+                  type="text"
+                  class="tag-input"
+                  [(ngModel)]="newTag"
+                  placeholder="Enter tag..."
+                  (input)="searchTags()"
+                  (keyup.enter)="addTag()">
+
+                <div class="tag-suggestions" *ngIf="tagSuggestions.length > 0">
+                  <div *ngFor="let suggestion of tagSuggestions"
+                    class="tag-suggestion-item"
+                    (click)="selectTag(suggestion.name)">
+                    {{ suggestion.name }}
+                  </div>
+                </div>
+
+                <div class="tag-input-actions">
+                  <button class="tag-btn add" (click)="addTag()">Add</button>
+                  <button class="tag-btn cancel"
+                    (click)="hideTagInput()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div class="rating-container">
             <div class="average-rating"

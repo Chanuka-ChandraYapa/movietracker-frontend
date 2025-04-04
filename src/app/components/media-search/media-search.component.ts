@@ -43,6 +43,7 @@ export class MediaSearchComponent implements OnInit {
   showFilters: boolean = false;
   isLoading: boolean = false;
   searchMode: string = "normal";
+  searchResults: any = null;
   
   // Search input debounce
   private searchSubject = new Subject<string>();
@@ -66,10 +67,10 @@ export class MediaSearchComponent implements OnInit {
     yearFrom: null,
     yearTo: null,
     minRating: 0,
-    sortBy: 'relevance',
+    sortBy: '',
     sortDirection: 'desc',
-    contentRating: 'Any',
-    knownFor: 'Any'
+    contentRating: '',
+    knownFor: ''
   };
   
   constructor(private mediaService: MediaService) { }
@@ -100,6 +101,7 @@ export class MediaSearchComponent implements OnInit {
         (genres) => {
           this.genres = genres.map(g => ({ ...g, selected: false }));
           this.isLoading = false;
+          console.log("genres", this.genres);
         },
         (error) => {
           console.error('Error loading movie genres:', error);
@@ -209,6 +211,7 @@ export class MediaSearchComponent implements OnInit {
     this.isLoading = false;
     // Search results handling will be implemented by the parent component
     console.log('Search results:', results);
+    this.searchResults = results.content;
     // Emit search results to parent component
   }
   
